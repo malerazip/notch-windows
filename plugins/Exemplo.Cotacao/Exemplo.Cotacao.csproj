@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Plugin de exemplo. Compile com: dotnet build -c Release
+       e copie a pasta de saída para %APPDATA%\ProjetoNotch\plugins\Cotacao\ -->
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
+    <GenerateDependencyFile>true</GenerateDependencyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Private=false: o Notch.Sdk já vem com o app, não copie junto -->
+    <ProjectReference Include="..\..\src\Notch.Sdk\Notch.Sdk.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

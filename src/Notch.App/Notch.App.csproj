@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <AssemblyName>ProjetoNotch</AssemblyName>
+    <RootNamespace>Notch.App</RootNamespace>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\notch.ico</ApplicationIcon>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <SatelliteResourceLanguages>pt-BR</SatelliteResourceLanguages>
+    <TieredPGO>true</TieredPGO>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- o manifesto define DPI por monitor para o WPF; o aviso do WinForms não se aplica -->
+    <NoWarn>$(NoWarn);WFO0003</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- WPF e WinForms juntos: evita ambiguidades (Application, Button, Brush...) -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\notch.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NAudio.Wasapi" Version="2.2.1" />
+    <PackageReference Include="System.Management" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Notch.Sdk\Notch.Sdk.csproj" />
+  </ItemGroup>
+</Project>

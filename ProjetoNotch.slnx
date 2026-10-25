@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/plugins/">
+    <Project Path="plugins/Exemplo.Cotacao/Exemplo.Cotacao.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Notch.App/Notch.App.csproj" />
+    <Project Path="src/Notch.Sdk/Notch.Sdk.csproj" />
+  </Folder>
+</Solution>
