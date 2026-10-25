@@ -15,7 +15,12 @@ Ferramentas incluídas:
 | **Prateleira de Arquivos** | Arraste arquivos, links ou texto para o notch e arraste de volta quando quiser |
 | **Novidades do Site** | Avisa quando algo novo é publicado no seu site (veja abaixo) |
 
-Alertas automáticos (cada um pode ser desligado no menu): bateria e carregador, volume, brilho,
+**Botão do microfone:** no topo do painel, muta e libera o microfone do Windows (vale para Teams,
+Zoom, Meet...). Enquanto estiver mudo, um microfone vermelho fica visível na pílula.
+
+Documentação completa, com o código-fonte comentado: abra `docs/documentacao.html` no navegador.
+
+Alertas automáticos (cada um pode ser desligado no menu): bateria e carregador, volume, microfone, brilho,
 Caps Lock, idioma do teclado, internet, Bluetooth e, se você ligar, as notificações do Windows.
 
 ## Como usar

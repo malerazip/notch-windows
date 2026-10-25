@@ -119,16 +119,18 @@ internal sealed class PomodoroModule : ModuleBase
         var content = new ContentControl();
         root.Children.Add(content);
 
-        var modeText = Ui.Text("", 12, FontWeights.SemiBold);
-        var time = Ui.Text("25:00", 34, FontWeights.Bold);
-        time.FontFamily = new FontFamily("Segoe UI Variable Display Semibold, Segoe UI");
-        var sessions = Ui.Text("", 11, null, NotchTheme.TextDim);
-        var playLabel = new ContentControl();
-        var ring = new RingProgress { Width = 84, Height = 84, Gap = 0, Thickness = 6 };
-        var ringIcon = Ui.Icon(Glyphs.Timer, 20);
+        // recriados a cada Render: um elemento WPF não pode estar em dois painéis ao mesmo tempo
+        TextBlock modeText = null!, time = null!, sessions = null!, ringIcon = null!;
+        RingProgress ring = null!;
 
         Border Main()
         {
+            modeText = Ui.Text("", 12, FontWeights.SemiBold);
+            time = Ui.Text("25:00", 34, FontWeights.Bold);
+            time.FontFamily = new FontFamily("Segoe UI Variable Display Semibold, Segoe UI");
+            sessions = Ui.Text("", 11, null, NotchTheme.TextDim);
+            ring = new RingProgress { Width = 84, Height = 84, Gap = 0, Thickness = 6 };
+            ringIcon = Ui.Icon(Glyphs.Timer, 20);
             var startBtn = Ui.Button(IsRunning ? Glyphs.Pause : Glyphs.Play, IsRunning ? "Pausar" : "Iniciar", () => { Toggle(); }, NotchTheme.AccentDeep);
             var left = Ui.Column(2,
                 Ui.Row(6, Ui.Icon(Mode == PomodoroMode.Foco ? Glyphs.Timer : Glyphs.Coffee, 12, ModeBrush), modeText),
@@ -187,6 +189,7 @@ internal sealed class PomodoroModule : ModuleBase
 
         void Tick()
         {
+            if (_showSettings || time == null) return;
             var rem = Remaining;
             modeText.Text = ModeName + (IsRunning ? "" : rem < Length ? " · pausado" : "");
             modeText.Foreground = ModeBrush;

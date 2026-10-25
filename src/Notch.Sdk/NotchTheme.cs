@@ -61,6 +61,8 @@ public static class Glyphs
     public const string Bluetooth = "";
     public const string Volume = "";
     public const string Mute = "";
+    public const string Microphone = "";
+    public const string MicOff = "";
     public const string Brightness = "";
     public const string Keyboard = "";
     public const string CapsLock = "";

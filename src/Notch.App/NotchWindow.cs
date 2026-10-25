@@ -76,6 +76,9 @@ internal sealed partial class NotchWindow : Window, INotchHost
     private readonly BatteryIcon _compactBattery = new();
     private readonly Border _compactArt = new() { Width = 20, Height = 20, CornerRadius = new CornerRadius(5) };
     private readonly TextBlock _compactTimerIcon = Ui.Icon(Glyphs.Timer, 13);
+    private readonly TextBlock _compactMicOff = Ui.Icon(Glyphs.MicOff, 14, NotchTheme.Red);
+    private Border _micButton = null!;
+    private bool? _lastMicMuted;
     private readonly AudioBars _compactBars = new();
     private readonly Mascot _compactMascot = new();
     private readonly TextBlock _title = new() { FontFamily = NotchTheme.Font, FontSize = 15, FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Center };
@@ -163,6 +166,8 @@ internal sealed partial class NotchWindow : Window, INotchHost
         left.Children.Add(_compactBattery);
         left.Children.Add(_compactArt);
         left.Children.Add(_compactTimerIcon);
+        left.Children.Add(_compactMicOff);
+        _compactMicOff.ToolTip = "Microfone mudo";
         _compactLayer.Children.Add(left);
 
         _compactTime.HorizontalAlignment = HorizontalAlignment.Center;
@@ -193,9 +198,10 @@ internal sealed partial class NotchWindow : Window, INotchHost
         var header = new Grid { Margin = new Thickness(20, 6, 20, 0) };
         header.Children.Add(_title);
         _headerTime.Margin = new Thickness(0);
-        var right = Ui.Row(8, _headerBattery, _headerDate, _headerTime, new Grid { Children = { _headerBars, _headerMascot }, Margin = new Thickness(12, 0, 0, 0) });
+        _micButton = Ui.IconButton(Glyphs.Microphone, () => ToggleMic(), 24, NotchTheme.Surface, NotchTheme.Text, 11);
+        var right = Ui.Row(8, _micButton, _headerBattery, _headerDate, _headerTime, new Grid { Children = { _headerBars, _headerMascot }, Margin = new Thickness(12, 0, 0, 0) });
         right.HorizontalAlignment = HorizontalAlignment.Right;
-        ((FrameworkElement)right.Children[3]).Margin = new Thickness(14, 0, 0, 0);
+        ((FrameworkElement)right.Children[4]).Margin = new Thickness(14, 0, 0, 0);
         header.Children.Add(right);
         _expandedLayer.Children.Add(header);
 
@@ -363,6 +369,8 @@ internal sealed partial class NotchWindow : Window, INotchHost
             _headerBattery.Visibility = _status.HasBattery ? Visibility.Visible : Visibility.Collapsed;
             UpdateCompact();
         };
+        _audio.MicChanged += OnMicChanged;
+        OnMicChanged(_audio.MicMuted);
         _audio.VolumeChanged += (volume, muted) =>
         {
             if (!Setting("alerts.volume")) return;
@@ -403,6 +411,42 @@ internal sealed partial class NotchWindow : Window, INotchHost
         };
         Microsoft.Win32.SystemEvents.DisplaySettingsChanged += (_, _) => Dispatcher.BeginInvoke(Reposition);
         DpiChanged += (_, _) => Reposition();
+    }
+
+    // ------------------------------------------------------------------ microfone
+
+    private void ToggleMic()
+    {
+        if (!_audio.HasMic)
+        {
+            ShowAlert(new NotchAlert("Microfone", "Nenhum microfone encontrado") { Glyph = Glyphs.MicOff, Accent = NotchTheme.TextDim, Key = "mic" });
+            return;
+        }
+        _audio.ToggleMic();
+    }
+
+    private void OnMicChanged(bool muted)
+    {
+        var icon = (TextBlock)_micButton.Child;
+        icon.Text = muted ? Glyphs.MicOff : Glyphs.Microphone;
+        icon.Foreground = !_audio.HasMic ? NotchTheme.TextFaint : muted ? NotchTheme.Red : NotchTheme.Text;
+        _micButton.ToolTip = !_audio.HasMic ? "Nenhum microfone conectado"
+            : muted ? "Microfone mudo · clique para ativar" : "Microfone ativo · clique para mutar";
+
+        // alerta só quando o estado muda de verdade (não ao trocar de fone, por exemplo)
+        // (com o painel aberto, alertas com Key são ignorados: o próprio botão já mostra o estado)
+        if (_lastMicMuted.HasValue && _lastMicMuted != muted)
+        {
+            ShowAlert(new NotchAlert(muted ? "Microfone mudo" : "Microfone ativado", muted ? "Ninguém está te ouvindo" : "Você está sendo ouvido")
+            {
+                Glyph = muted ? Glyphs.MicOff : Glyphs.Microphone,
+                Accent = muted ? NotchTheme.Red : NotchTheme.Green,
+                Duration = TimeSpan.FromSeconds(1.8),
+                Key = "mic",
+            });
+        }
+        _lastMicMuted = muted;
+        UpdateCompact();
     }
 
     // ------------------------------------------------------------------ estados
@@ -734,11 +778,15 @@ internal sealed partial class NotchWindow : Window, INotchHost
         _compactTimerIcon.Foreground = _pomodoro.ModeBrush;
         _compactTimerIcon.Text = _pomodoro.Mode == PomodoroMode.Foco ? Glyphs.Timer : Glyphs.Coffee;
 
-        var showArt = !minimal && !timer && playing && _media.Art != null;
+        // microfone mudo aparece até no modo minimalista: é o aviso mais importante
+        var micOff = _audio.HasMic && _audio.MicMuted && !timer;
+        _compactMicOff.Visibility = micOff ? Visibility.Visible : Visibility.Collapsed;
+
+        var showArt = !minimal && !timer && !micOff && playing && _media.Art != null;
         _compactArt.Visibility = showArt ? Visibility.Visible : Visibility.Collapsed;
         if (showArt) _compactArt.Background = new ImageBrush(_media.Art) { Stretch = Stretch.UniformToFill };
 
-        _compactBattery.Visibility = !minimal && !timer && !showArt && _status.HasBattery ? Visibility.Visible : Visibility.Collapsed;
+        _compactBattery.Visibility = !minimal && !timer && !micOff && !showArt && _status.HasBattery ? Visibility.Visible : Visibility.Collapsed;
 
         var mascot = Setting("mascot", true);
         _compactBars.IsPlaying = playing;

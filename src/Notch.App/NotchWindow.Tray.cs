@@ -90,6 +90,9 @@ internal sealed partial class NotchWindow
         }
         _menu.Items.Add(tools);
 
+        if (_audio.HasMic)
+            _menu.Items.Add(Check("Microfone mudo", _audio.MicMuted, on => { if (on != _audio.MicMuted) ToggleMic(); }));
+
         var alerts = new Forms.ToolStripMenuItem("Alertas do sistema") { ForeColor = Drawing.Color.White };
         foreach (var (key, label) in AlertOptions)
             alerts.DropDownItems.Add(Check(label, Setting(key), on => SaveSetting(key, on)));

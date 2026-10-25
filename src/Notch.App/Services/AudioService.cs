@@ -10,17 +10,74 @@ internal sealed class AudioService : IMMNotificationClient
     private readonly Dispatcher _dispatcher;
     private readonly MMDeviceEnumerator _enumerator = new();
     private MMDevice? _device;
+    private MMDevice? _mic;
     private float _lastVolume = -1;
     private bool _lastMute;
 
     /// <summary>(volume 0..1, mudo)</summary>
     public event Action<float, bool>? VolumeChanged;
 
+    /// <summary>Microfone padrão foi mutado/desmutado (por aqui ou por outro app).</summary>
+    public event Action<bool>? MicChanged;
+
+    public bool HasMic => _mic != null;
+
+    public bool MicMuted { get; private set; }
+
     public AudioService(Dispatcher dispatcher)
     {
         _dispatcher = dispatcher;
         try { _enumerator.RegisterEndpointNotificationCallback(this); } catch { }
         Attach();
+        AttachMic();
+    }
+
+    /// <summary>Microfone padrão de comunicação (o mesmo que Teams, Zoom e Meet usam).</summary>
+    private void AttachMic()
+    {
+        try
+        {
+            if (_mic != null) _mic.AudioEndpointVolume.OnVolumeNotification -= OnMicVolume;
+            _mic = _enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Communications);
+            MicMuted = _mic.AudioEndpointVolume.Mute;
+            _mic.AudioEndpointVolume.OnVolumeNotification += OnMicVolume;
+        }
+        catch (Exception ex)
+        {
+            if (_mic != null) Core.Paths.WriteLog("Microfone desconectado: " + ex.Message);
+            _mic = null;
+            MicMuted = false;
+        }
+        MicChanged?.Invoke(MicMuted);
+    }
+
+    private void OnMicVolume(AudioVolumeNotificationData data)
+    {
+        if (data.Muted == MicMuted) return;
+        _dispatcher.BeginInvoke(() =>
+        {
+            MicMuted = data.Muted;
+            MicChanged?.Invoke(MicMuted);
+        });
+    }
+
+    /// <summary>Muta ou libera o microfone. Retorna o novo estado (true = mudo).</summary>
+    public bool ToggleMic()
+    {
+        if (_mic == null) AttachMic();
+        if (_mic == null) return false;
+        try
+        {
+            var muted = !_mic.AudioEndpointVolume.Mute;
+            _mic.AudioEndpointVolume.Mute = muted;
+            MicMuted = muted;
+            MicChanged?.Invoke(muted);
+        }
+        catch (Exception ex)
+        {
+            Core.Paths.WriteLog("Falha ao mutar o microfone: " + ex.Message);
+        }
+        return MicMuted;
     }
 
     private void Attach()
@@ -58,10 +115,15 @@ internal sealed class AudioService : IMMNotificationClient
     public void OnDefaultDeviceChanged(DataFlow flow, Role role, string defaultDeviceId)
     {
         if (flow == DataFlow.Render && role == Role.Multimedia) _dispatcher.BeginInvoke(Attach);
+        if (flow == DataFlow.Capture && role == Role.Communications) _dispatcher.BeginInvoke(AttachMic);
     }
 
-    public void OnDeviceStateChanged(string deviceId, DeviceState newState) { }
-    public void OnDeviceAdded(string pwstrDeviceId) { }
+    public void OnDeviceStateChanged(string deviceId, DeviceState newState)
+    {
+        // microfone (fone USB/Bluetooth) conectado ou removido
+        _dispatcher.BeginInvoke(AttachMic);
+    }
+    public void OnDeviceAdded(string pwstrDeviceId) => _dispatcher.BeginInvoke(AttachMic);
     public void OnDeviceRemoved(string deviceId) { }
     public void OnPropertyValueChanged(string pwstrDeviceId, PropertyKey key) { }
 }

@@ -389,6 +389,7 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <div class="cartao"><h4><span class="ponto" style="background:var(--purple)"></span>Lista de Tarefas</h4><p>Adicionar, editar, concluir e excluir tarefas, com horário opcional. Na hora marcada aparece um alerta com "Concluir" e "+10 min".</p></div>
 <div class="cartao"><h4><span class="ponto" style="background:var(--green)"></span>Prateleira de Arquivos</h4><p>Arraste arquivos, pastas, links ou textos para o notch. Eles ficam guardados até você arrastá-los para outro lugar (e-mail, WhatsApp Web, outra pasta) ou abri-los com um clique.</p></div>
 <div class="cartao"><h4><span class="ponto" style="background:var(--purple)"></span>Novidades do Site</h4><p>Consulta seu site de tempos em tempos e avisa quando algo novo é publicado, com um botão para abrir. Aceita JSON, RSS e Atom.</p></div>
+<div class="cartao"><h4><span class="ponto" style="background:var(--red)"></span>Botão do microfone</h4><p>No cabeçalho do painel: um clique muta o microfone do Windows (vale para Teams, Zoom, Meet, WhatsApp), outro clique libera. Enquanto estiver mudo, um microfone vermelho aparece na pílula. Também está no menu.</p></div>
 <div class="cartao"><h4><span class="ponto" style="background:var(--green)"></span>Cotação do Dia (plugin)</h4><p>Exemplo de ferramenta externa: dólar, euro e bitcoin com variação do dia. Serve de modelo para criar as suas.</p></div>
 </div>
 <h3>Alertas automáticos do sistema</h3>
@@ -397,6 +398,7 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <tbody>
 <tr><td>Bateria</td><td>Carregador conectado/desconectado, bateria fraca (20%), crítica (10%) e totalmente carregada.</td></tr>
 <tr><td>Volume</td><td>Ao mudar o volume ou ativar o mudo, com barra de nível.</td></tr>
+<tr><td>Microfone</td><td>Ao mutar ou liberar o microfone, pelo notch ou por outro app (Windows, Teams...).</td></tr>
 <tr><td>Brilho</td><td>Ao mudar o brilho da tela (notebooks), com barra de nível.</td></tr>
 <tr><td>Caps Lock</td><td>Ativado / desativado.</td></tr>
 <tr><td>Idioma do teclado</td><td>Ao trocar o layout (ex.: Português → Inglês) na mesma janela.</td></tr>
@@ -658,6 +660,7 @@ próximo   = máx(último gole ou lembrete, início) + intervalo</code></pre>
 <tbody>
 <tr><td>Música tocando</td><td><code>Windows.Media.Control</code> (GSMTC)</td><td>MediaService.cs</td></tr>
 <tr><td>Volume e mudo</td><td>Core Audio <code>IAudioEndpointVolume</code> (via NAudio), com troca automática de dispositivo</td><td>AudioService.cs</td></tr>
+<tr><td>Mutar microfone</td><td>Core Audio <code>IAudioEndpointVolume.Mute</code> no microfone padrão de comunicação, com aviso de troca/conexão de dispositivo</td><td>AudioService.cs</td></tr>
 <tr><td>Nível do som (barrinhas)</td><td>Core Audio <code>IAudioMeterInformation.MasterPeakValue</code>, ~30 fps só quando visível e tocando</td><td>AudioService.cs, AudioBars.cs</td></tr>
 <tr><td>Bateria e carregador</td><td><code>SystemInformation.PowerStatus</code>, consultado a cada 3 s</td><td>SystemStatusService.cs</td></tr>
 <tr><td>Internet</td><td><code>NetworkChange</code> + <code>NetworkInformation.GetInternetConnectionProfile</code>, com espera de 2,5 s para estabilizar</td><td>SystemStatusService.cs</td></tr>
