@@ -67,8 +67,28 @@ internal sealed class WaterModule : ModuleBase
         Changed?.Invoke();
     }
 
-    /// <summary>Minutos entre lembretes para cumprir a meta dentro do horário.</summary>
-    private int IntervalMin => Math.Max(15, (EndMin - StartMin) / Math.Max(1, (int)Math.Ceiling(Goal / (double)Dose)));
+    /// <summary>Intervalo escolhido em "A cada" (0 = automático).</summary>
+    private int EveryMin => _s.GetInt("every", 0);
+
+    /// <summary>Automático: minutos entre lembretes para cumprir a meta dentro do horário.</summary>
+    private int AutoIntervalMin => Math.Max(15, (EndMin - StartMin) / Math.Max(1, (int)Math.Ceiling(Goal / (double)Dose)));
+
+    private int IntervalMin => EveryMin > 0 ? EveryMin : AutoIntervalMin;
+
+    private static string Duration(int minutes) =>
+        minutes < 60 ? $"{minutes} min" : minutes % 60 == 0 ? $"{minutes / 60} h" : $"{minutes / 60}h{minutes % 60:00}";
+
+    /// <summary>Texto curto do estado dos lembretes (para a página e a tela de lembretes).</summary>
+    private string ReminderStatus()
+    {
+        if (!RemindersOn) return "lembretes desligados";
+        if (Taken >= Goal) return "meta batida";
+        var now = DateTime.Now.Hour * 60 + DateTime.Now.Minute;
+        if (NextReminder() is { } n) return $"a cada {Duration(IntervalMin)} · próximo {Hm(n)}";
+        return now >= EndMin || now < StartMin
+            ? $"fora do horário ({Hm(StartMin)}–{Hm(EndMin)})"
+            : "sem mais lembretes hoje";
+    }
 
     /// <summary>Horário (minutos do dia) do próximo lembrete, ou null se não há mais hoje.</summary>
     private int? NextReminder()
@@ -92,7 +112,11 @@ internal sealed class WaterModule : ModuleBase
         _s.Set("last", now);
         _s.Set("fired", _s.GetInt("fired", 0) + 1);
         Save();
+        ShowReminder();
+    }
 
+    private void ShowReminder()
+    {
         if (InBottle < Dose / 2)
         {
             Host.ShowAlert(new NotchAlert("Hora de reabastecer", "Sua garrafa provavelmente está vazia")
@@ -150,6 +174,7 @@ internal sealed class WaterModule : ModuleBase
         void Render() => root.Content = _panel switch
         {
             "settings" => SettingsView(Render),
+            "lembretes" => RemindersView(Render),
             "confirm" => ConfirmView(Render),
             "history" => MainView(Render, true),
             _ => MainView(Render, false),
@@ -176,11 +201,9 @@ internal sealed class WaterModule : ModuleBase
         toggle.HorizontalAlignment = HorizontalAlignment.Right;
         top.Children.Add(toggle);
 
-        var next = NextReminder();
-        var status = new TextBlock { FontFamily = NotchTheme.Font, FontSize = 11, Foreground = NotchTheme.TextDim };
-        status.Inlines.Add("Hoje · ");
+        var status = new TextBlock { FontFamily = NotchTheme.Font, FontSize = 11, Foreground = NotchTheme.TextDim, TextTrimming = TextTrimming.CharacterEllipsis };
         status.Inlines.Add(new System.Windows.Documents.Run($"{Math.Round(pct * 100)}%") { Foreground = NotchTheme.Accent, FontWeight = FontWeights.SemiBold });
-        status.Inlines.Add(Taken >= Goal ? " · meta batida" : next is { } n ? $" · Próximo {Hm(n)}" : RemindersOn ? " · sem lembretes hoje" : " · lembretes desligados");
+        status.Inlines.Add(" · " + ReminderStatus());
         status.ToolTip = $"Na garrafa: {InBottle} de {Bottle} ml";
 
         var bar = Ui.ProgressBar(pct, NotchTheme.Accent, 5);
@@ -188,10 +211,10 @@ internal sealed class WaterModule : ModuleBase
 
         var buttons = Ui.Row(6,
             Ui.Button(Glyphs.Drop, $"Beber {Dose} ml", Drink, NotchTheme.AccentDeep),
-            Ui.Button(Glyphs.Refresh, null, Refill),
+            Ui.Button(Glyphs.Clock, "Lembretes", () => { _panel = "lembretes"; render(); }),
             Ui.Button(Glyphs.Settings, null, () => { _panel = "settings"; render(); }));
-        ((Border)buttons.Children[1]).ToolTip = "Reabasteci a garrafa";
-        ((Border)buttons.Children[2]).ToolTip = "Ajustes";
+        ((Border)buttons.Children[1]).ToolTip = "Quando e de quanto em quanto tempo lembrar";
+        ((Border)buttons.Children[2]).ToolTip = "Garrafa, meta e dose";
 
         var left = Ui.Column(0, top, status, bar, buttons);
         left.VerticalAlignment = VerticalAlignment.Center;
@@ -278,34 +301,71 @@ internal sealed class WaterModule : ModuleBase
             return row;
         }
 
-        StackPanel Hours()
-        {
-            Border Step(string glyph, string key, int delta) => Ui.IconButton(glyph, () =>
-            {
-                var v = Math.Clamp(_s.GetInt(key, key == "start" ? 480 : 1080) + delta, 0, 24 * 60);
-                if (key == "start" && v >= EndMin) return;
-                if (key == "end" && v <= StartMin) return;
-                _s.Set(key, v);
-                Save();
-            }, 20, null, null, 9);
-            return Ui.Row(4,
-                Ui.Text("Horário", 11, FontWeights.SemiBold, NotchTheme.TextDim),
-                Step(Glyphs.ChevronLeft, "start", -60), Ui.Text(Hm(StartMin), 11, FontWeights.SemiBold), Step(Glyphs.ChevronRight, "start", 60),
-                Ui.Text("até", 11, null, NotchTheme.TextDim),
-                Step(Glyphs.ChevronLeft, "end", -60), Ui.Text(Hm(EndMin), 11, FontWeights.SemiBold), Step(Glyphs.ChevronRight, "end", 60));
-        }
-
-        var hoursRow = Hours();
-        ((FrameworkElement)hoursRow.Children[0]).Width = 52;
-
-        return Ui.Column(5,
+        return Ui.Column(6,
             Option("Garrafa", "bottle", [500, 750, 1000, 1500], v => $"{v} ml", Bottle),
             Option("Meta", "goal", [1500, 2000, 2500, 3000], v => $"{Liters(v)} L", Goal),
             Option("Dose", "dose", [150, 200, 250, 300], v => $"{v} ml", Dose),
-            hoursRow,
             Ui.Row(8,
                 Ui.Button(Glyphs.Check, "Pronto", () => { _panel = "main"; render(); }, NotchTheme.AccentDeep),
+                Ui.Button(Glyphs.Refresh, "Reabasteci", Refill),
                 Ui.Button(Glyphs.Reset, "Zerar dia", () => { _panel = "confirm"; render(); })));
+    }
+
+    /// <summary>Tela "Lembretes": liga/desliga, de quanto em quanto tempo e em que horário.</summary>
+    private FrameworkElement RemindersView(Action render)
+    {
+        TextBlock Label(string text)
+        {
+            var t = Ui.Text(text, 11, FontWeights.SemiBold, NotchTheme.TextDim);
+            t.Width = 52;
+            return t;
+        }
+
+        var onRow = Ui.Row(8, Label("Lembrar"), Ui.Toggle(RemindersOn, on => { _s.Set("on", on); Save(); }, Glyphs.Bell),
+            Ui.Text(RemindersOn ? "ligado" : "desligado", 11, FontWeights.SemiBold, RemindersOn ? NotchTheme.Text : NotchTheme.TextDim));
+
+        var every = Ui.Row(4, Label("A cada"));
+        foreach (var m in new[] { 0, 30, 45, 60, 90, 120 })
+        {
+            var text = m == 0 ? "Auto" : Duration(m);
+            var chip = Ui.Chip(text, EveryMin == m, () =>
+            {
+                _s.Set("every", m);
+                // novo intervalo começa a contar agora
+                _s.Set("last", DateTime.Now.Hour * 60 + DateTime.Now.Minute);
+                _snoozeUntil = default;
+                Save();
+            });
+            chip.ToolTip = m == 0 ? $"Divide a meta ao longo do horário (hoje: a cada {Duration(AutoIntervalMin)})" : null;
+            chip.Margin = new Thickness(4, 0, 0, 0);
+            every.Children.Add(chip);
+        }
+
+        Border Step(string glyph, string key, int delta) => Ui.IconButton(glyph, () =>
+        {
+            var v = Math.Clamp(_s.GetInt(key, key == "start" ? 480 : 1080) + delta, 0, 24 * 60);
+            if (key == "start" && v >= EndMin) return;
+            if (key == "end" && v <= StartMin) return;
+            _s.Set(key, v);
+            Save();
+        }, 20, null, null, 9);
+        var hours = Ui.Row(4, Label("Horário"),
+            Step(Glyphs.ChevronLeft, "start", -60), Ui.Text(Hm(StartMin), 11, FontWeights.SemiBold), Step(Glyphs.ChevronRight, "start", 60),
+            Ui.Text("até", 11, null, NotchTheme.TextDim),
+            Step(Glyphs.ChevronLeft, "end", -60), Ui.Text(Hm(EndMin), 11, FontWeights.SemiBold), Step(Glyphs.ChevronRight, "end", 60));
+
+        var bottom = new Grid();
+        bottom.Children.Add(Ui.Row(8,
+            Ui.Button(Glyphs.Check, "Pronto", () => { _panel = "main"; render(); }, NotchTheme.AccentDeep),
+            Ui.Button(Glyphs.Bell, "Testar", ShowReminder)));
+        var status = Ui.Text(ReminderStatus(), 11, null, NotchTheme.Accent);
+        status.HorizontalAlignment = HorizontalAlignment.Right;
+        status.MaxWidth = 170;
+        bottom.Children.Add(status);
+
+        var col = Ui.Column(6, onRow, every, hours, bottom);
+        col.VerticalAlignment = VerticalAlignment.Center;
+        return col;
     }
 
     private FrameworkElement ConfirmView(Action render)

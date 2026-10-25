@@ -57,6 +57,7 @@ ARQUIVOS = [
         ("src/Notch.App/Services/AudioService.cs", "Volume do Windows e nível do som (Core Audio, via NAudio)."),
         ("src/Notch.App/Services/SystemStatusService.cs", "Bateria, carregador, rede, Bluetooth, Caps Lock, idioma do teclado e brilho."),
         ("src/Notch.App/Services/WindowsNotificationService.cs", "Espelho das notificações do Windows (opcional)."),
+        ("src/Notch.App/Services/CameraService.cs", "Indicador da webcam: descobre quais programas estão usando a câmera, sem abri-la."),
     ]),
     ("Aplicativo: ferramentas internas", [
         ("src/Notch.App/Modules/ModuleBase.cs", "Base das ferramentas internas (timer que só roda com a página visível)."),
@@ -124,8 +125,8 @@ def main():
         "{{TABELA_ARQUIVOS}}": tabela,
         "{{CODIGO}}": codigo,
         "{{FIG_NUSA}}": figura("nusa-original.png", "O Nusa original (inglês, código fechado) que serviu de referência visual."),
-        "{{FIG_PILULA_MUSICA}}": figura("pilula-musica.png", "Pílula com música tocando: capa, hora e barrinhas de áudio.", "pequena"),
-        "{{FIG_PILULA_POMODORO}}": figura("pilula-pomodoro.png", "Pílula com o Pomodoro rodando: contagem em laranja.", "pequena"),
+        "{{FIG_PILULA_MUSICA}}": figura("pilula-musica.png", "Notch fechado com algo tocando: capa (ou ícone do app), barras de áudio e microfone.", "pequena"),
+        "{{FIG_PILULA_POMODORO}}": figura("pilula-pomodoro.png", "Notch fechado com o Pomodoro rodando: contagem em laranja.", "pequena"),
         "{{FIG_BOAS_VINDAS}}": figura("alerta-boas-vindas.png", "Alerta de boas-vindas na primeira execução."),
         "{{FIG_ALERTA_AGUA}}": figura("alerta-agua.png", "Alerta com botões de ação (lembrete de água)."),
         "{{FIG_ALERTA_SITE}}": figura("alerta-site.png", "Alerta de novidade publicada no site."),
@@ -134,6 +135,7 @@ def main():
     for nome, legenda in [
         ("pagina-musica.png", "Tocando Agora"), ("pagina-letra.png", "Letra da Música"),
         ("pagina-pomodoro.png", "Timer Pomodoro"), ("pagina-agua.png", "Lembrete de Água"),
+        ("pagina-agua-lembretes.png", "Lembrete de Água · tela Lembretes"),
         ("pagina-tarefas.png", "Lista de Tarefas"), ("pagina-prateleira.png", "Prateleira de Arquivos"),
         ("pagina-site.png", "Novidades do Site"), ("pagina-cotacao-plugin.png", "Cotação do Dia (plugin de exemplo)"),
     ]:
@@ -347,7 +349,7 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <!-- =============================================================== -->
 <section id="visao">
 <h2>Visão geral</h2>
-<p>O <b>Projeto Notch</b> é uma pílula preta que fica no centro do topo da tela. Com o <b>notch fechado</b>, ela mostra a hora, a bateria, o microfone e o que está tocando. Ao passar o mouse, o <b>notch abre</b> e vira um painel com páginas de ferramentas: música, letra sincronizada, Pomodoro, lembrete de água, tarefas, prateleira de arquivos e novidades do seu site. Quando algo acontece (bateria fraca, hora de beber água, lançamento no site), ela se estica e mostra um <b>alerta</b> com botões.</p>
+<p>O <b>Projeto Notch</b> é uma pílula preta que fica no centro do topo da tela. Com o <b>notch fechado</b>, ela mostra o que está tocando (ou a bateria), barras de áudio, o microfone e, quando estiver ligada, a webcam. Ao <b>clicar</b>, o <b>notch abre</b> e vira um painel com páginas de ferramentas: música, letra sincronizada, Pomodoro, lembrete de água, tarefas, prateleira de arquivos e novidades do seu site. Quando algo acontece (bateria fraca, hora de beber água, lançamento no site), ela se estica e mostra um <b>alerta</b> com botões.</p>
 <p>Ele nasceu como substituto do <b>Nusa</b>, um app parecido em inglês e de código fechado. O autor do Nusa abandonou o projeto e não dava para acrescentar funções nele. O Projeto Notch refaz tudo o que o Nusa fazia, em português, e foi construído desde o início para <b>aceitar ferramentas novas</b> (plugins) e se <b>conectar ao seu site</b>.</p>
 <div class="tabela"><table>
 <thead><tr><th>Item</th><th>Escolha</th><th>Por quê</th></tr></thead>
@@ -368,7 +370,7 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <div class="lado">{{FIG_PILULA_MUSICA}}{{FIG_PILULA_POMODORO}}</div>
 <h3>Notch aberto (as ferramentas)</h3>
 <div class="galeria">
-{{FIG_PAGINA_MUSICA}}{{FIG_PAGINA_LETRA}}{{FIG_PAGINA_POMODORO}}{{FIG_PAGINA_AGUA}}
+{{FIG_PAGINA_MUSICA}}{{FIG_PAGINA_LETRA}}{{FIG_PAGINA_POMODORO}}{{FIG_PAGINA_AGUA}}{{FIG_PAGINA_AGUA_LEMBRETES}}
 {{FIG_PAGINA_TAREFAS}}{{FIG_PAGINA_PRATELEIRA}}{{FIG_PAGINA_SITE}}{{FIG_PAGINA_COTACAO_PLUGIN}}
 </div>
 <h3>Alertas</h3>
@@ -385,11 +387,13 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <div class="cartao"><h4><span class="ponto" style="background:var(--text)"></span>Tocando Agora</h4><p>Controla a música de qualquer player (Spotify, YouTube no navegador, Deezer, Apple Music, VLC...): capa, título, artista, play/pause, avançar, voltar e barra de progresso clicável para pular.</p></div>
 <div class="cartao"><h4><span class="ponto" style="background:var(--accent)"></span>Letra da Música</h4><p>Letra sincronizada: a linha atual em destaque, a anterior e a próxima. Se não houver versão sincronizada, mostra a letra simples. Fonte: LRCLIB, gratuito e sem cadastro.</p></div>
 <div class="cartao"><h4><span class="ponto" style="background:var(--orange)"></span>Timer Pomodoro</h4><p>Ciclos de foco e pausa (25/5/15 min, ajustáveis), pausa longa a cada 4 focos, alerta com som no fim e contagem regressiva visível na pílula.</p></div>
-<div class="cartao"><h4><span class="ponto" style="background:var(--accent)"></span>Lembrete de Água</h4><p>Meta diária, tamanho da garrafa, dose por gole e horário de lembretes. Distribui os lembretes ao longo do dia, avisa quando a garrafa deve estar vazia e mostra o histórico por hora.</p></div>
+<div class="cartao"><h4><span class="ponto" style="background:var(--accent)"></span>Lembrete de Água</h4><p>Meta diária, garrafa e dose por gole. Na tela <b>Lembretes</b> você escolhe de quanto em quanto tempo ser lembrado (Auto, 30 min, 45 min, 1 h, 1h30, 2 h) e em que horário. Avisa quando a garrafa deve estar vazia e mostra o histórico por hora.</p></div>
 <div class="cartao"><h4><span class="ponto" style="background:var(--purple)"></span>Lista de Tarefas</h4><p>Adicionar, editar, concluir e excluir tarefas, com horário opcional. Na hora marcada aparece um alerta com "Concluir" e "+10 min".</p></div>
 <div class="cartao"><h4><span class="ponto" style="background:var(--green)"></span>Prateleira de Arquivos</h4><p>Arraste arquivos, pastas, links ou textos para o notch. Eles ficam guardados até você arrastá-los para outro lugar (e-mail, WhatsApp Web, outra pasta) ou abri-los com um clique.</p></div>
 <div class="cartao"><h4><span class="ponto" style="background:var(--purple)"></span>Novidades do Site</h4><p>Consulta seu site de tempos em tempos e avisa quando algo novo é publicado, com um botão para abrir. Aceita JSON, RSS e Atom.</p></div>
 <div class="cartao"><h4><span class="ponto" style="background:var(--red)"></span>Botão do microfone</h4><p>Sempre visível no canto direito da pílula: <b>verde</b> = ligado, <b>vermelho cortado</b> = mudo, <b>cinza</b> = sem microfone. Um clique muta/libera o microfone do Windows (vale para Teams, Zoom, Meet, WhatsApp) sem abrir o painel. O estado é conferido a cada segundo, então mudanças feitas em outros apps ou no próprio headset aparecem na hora. Também fica no cabeçalho do painel e no menu.</p></div>
+<div class="cartao"><h4><span class="ponto" style="background:var(--green)"></span>Indicador da webcam</h4><p>Quando algum programa está usando a webcam (Teams, Zoom, Meet, Discord, app Câmera...), um ícone verde de câmera aparece ao lado do microfone. Com a webcam desligada, nenhum ícone. Passe o mouse para ver qual programa está usando.</p></div>
+<div class="cartao"><h4><span class="ponto" style="background:var(--purple)"></span>Modo gamer</h4><p>Some com o notch por completo por 15 min, 30 min, 1 h, 2 h ou até você desativar pelo ícone da bandeja. Avisos importantes esperam o notch voltar. Reiniciar ou desligar o PC sempre volta ao normal.</p></div>
 <div class="cartao"><h4><span class="ponto" style="background:var(--green)"></span>Cotação do Dia (plugin)</h4><p>Exemplo de ferramenta externa: dólar, euro e bitcoin com variação do dia. Serve de modelo para criar as suas.</p></div>
 </div>
 <h3>Alertas automáticos do sistema</h3>
@@ -408,10 +412,12 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 </tbody></table></div>
 <h3>Comportamentos inteligentes</h3>
 <ul>
-<li><b>Some em tela cheia:</b> filmes, jogos e apresentações em tela cheia escondem o notch automaticamente.</li>
+<li><b>Some em tela cheia:</b> filmes, jogos e apresentações em tela cheia escondem o notch automaticamente. Para sumir por um tempo mesmo sem tela cheia, use o <b>modo gamer</b>.</li>
+<li><b>Abre só com clique:</b> passar o mouse por cima não abre o notch (dá para mudar no menu, em "Abrir ao passar o mouse").</li>
+<li><b>Largura que se ajusta:</b> o notch fechado é estreito (~100 px) e só alarga quando precisa mostrar algo a mais, como a contagem do Pomodoro ou o ícone da webcam.</li>
 <li><b>Não rouba o foco:</b> clicar no notch não tira o foco da janela onde você está digitando (exceto ao digitar dentro dele).</li>
 <li><b>Clique atravessa:</b> fora da pílula, os cliques passam para as janelas de baixo.</li>
-<li><b>Barrinhas de áudio de verdade:</b> elas reagem ao nível real do som, não a uma animação falsa.</li>
+<li><b>Barras de áudio de verdade:</b> em formato de onda, reagem ao nível real do som com <b>ganho automático</b>, então até uma transmissão com som baixo faz as barras dançarem. Ficam baixas e cinzas quando nada toca.</li>
 <li><b>Fila de alertas:</b> vários avisos seguidos entram em fila; avisos repetidos (volume, Caps Lock) só atualizam o atual.</li>
 <li><b>Resistente a erros:</b> se uma ferramenta ou plugin falhar, o resto continua funcionando e o erro vai para o log.</li>
 <li><b>Instância única:</b> abrir o app duas vezes não cria dois notches.</li>
@@ -425,23 +431,27 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <div class="tabela"><table>
 <thead><tr><th>Ação</th><th>Resultado</th></tr></thead>
 <tbody>
-<tr><td>Passar o mouse sobre o notch fechado</td><td>Abre o notch (após ~0,15 s, para evitar aberturas acidentais).</td></tr>
+<tr><td>Passar o mouse sobre o notch fechado</td><td>Nada, por padrão. Com a opção "Abrir ao passar o mouse" ligada no menu, abre após ~0,15 s.</td></tr>
 <tr><td>Tirar o mouse do notch aberto</td><td>Fecha após ~0,45 s. Se você estiver digitando, só fecha ao clicar fora.</td></tr>
 <tr><td>Clique no notch fechado</td><td>Abre o notch na hora.</td></tr>
 <tr><td>Clique no microfone do notch fechado</td><td>Muta/libera o microfone sem abrir o notch (verde = ligado, vermelho = mudo).</td></tr>
 <tr><td>Setas laterais, pontinhos ou roda do mouse</td><td>Trocam de página. A última página aberta é lembrada.</td></tr>
 <tr><td>Clique direito no notch</td><td>Abre o menu de configurações.</td></tr>
 <tr><td>Clique no ícone da bandeja (perto do relógio)</td><td>Esquerdo abre o painel; direito abre o menu.</td></tr>
+<tr><td>Clique no ícone da bandeja com o modo gamer ligado</td><td>Desativa o modo gamer e traz o notch de volta.</td></tr>
 <tr><td>Arrastar arquivos para o notch</td><td>Abre a Prateleira e guarda os arquivos ao soltar.</td></tr>
 <tr><td>Mouse sobre um alerta</td><td>O alerta não some enquanto o mouse está em cima.</td></tr>
 <tr><td>Clique num alerta</td><td>Executa a ação do alerta ou abre o painel.</td></tr>
 </tbody></table></div>
 <h3>Menu de configurações</h3>
 <ul>
+<li><b>Modo gamer:</b> 15 minutos, 30 minutos, 1 hora, 2 horas ou "Até eu desativar". Com ele ligado, o item mostra a hora de volta e a opção "Desativar agora".</li>
 <li><b>Ferramentas:</b> liga/desliga cada página (inclusive plugins).</li>
+<li><b>Microfone mudo:</b> o mesmo que clicar no microfone do notch.</li>
 <li><b>Alertas do sistema:</b> liga/desliga bateria, volume, brilho, Caps Lock, idioma, internet e Bluetooth.</li>
 <li><b>Notificações do Windows no notch:</b> pede permissão ao Windows e passa a espelhar as notificações.</li>
-<li><b>Modo minimalista:</b> pílula menor, só com a hora.</li>
+<li><b>Abrir ao passar o mouse:</b> desligado por padrão (o notch abre só com clique).</li>
+<li><b>Modo minimalista:</b> notch fechado bem pequeno, só com o microfone (e a contagem do Pomodoro, se estiver rodando).</li>
 <li><b>Mascote:</b> olhinhos que piscam quando nada está tocando.</li>
 <li><b>Iniciar com o Windows</b>, <b>Abrir pasta de plugins</b>, <b>Abrir pasta de dados</b>, <b>Sobre</b> e <b>Sair</b>.</li>
 </ul>
@@ -459,6 +469,7 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <li><b>Escolha da tecnologia.</b> O plano inicial era Tauri (Rust + HTML), mas o PC não tinha as ferramentas de compilação de Rust e C++ (de 6 a 8 GB). Para um app só de Windows, <b>.NET 10 + WPF</b> se mostrou melhor: acesso direto às APIs do Windows, leve e com o runtime já instalado. Bastou instalar o .NET 10 SDK (~250 MB) pelo <code>winget</code>.</li>
 <li><b>Arquitetura extensível primeiro.</b> Antes das telas, foi criado o <code>Notch.Sdk</code>, o contrato que todas as ferramentas seguem. Assim as ferramentas internas e os plugins usam exatamente o mesmo mecanismo.</li>
 <li><b>Construção e testes reais.</b> O app foi compilado sem erros nem avisos e testado no PC: alerta de boas-vindas, lembrete de água (clique em "Adiar"), música detectada no YouTube, todas as páginas, Pomodoro na pílula, menu, plugin carregado e conexão com um feed de verdade (com simulação de item novo). Ajustes visuais foram feitos a partir das capturas.</li>
+<li><b>Ajustes de uso, um a um.</b> Depois da primeira versão: botão de microfone sempre visível (verde/vermelho), notch fechado sem hora e mais estreito, abrir só com clique, barras de áudio no estilo do Nusa com ganho automático, tela de lembretes de água com intervalo escolhido, modo gamer e indicador da webcam. Cada mudança foi testada no PC antes de seguir.</li>
 </ol>
 </section>
 
@@ -556,7 +567,7 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <marker id="ponta2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#3ea6ff"/></marker>
 </defs>
 <rect class="caixa preta" x="40" y="80" width="190" height="34" rx="17"/>
-<text class="branco" x="135" y="102" text-anchor="middle" font-weight="700">Notch fechado · 224×32</text>
+<text class="branco" x="135" y="102" text-anchor="middle" font-weight="700">Notch fechado · 100×30</text>
 <rect class="caixa preta" x="355" y="20" width="200" height="56" rx="22"/>
 <text class="branco" x="455" y="45" text-anchor="middle" font-weight="700">Alerta · 370×64</text>
 <text class="branco" x="455" y="63" text-anchor="middle" font-size="11">(430 com botões)</text>
@@ -568,7 +579,7 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <path d="M360 70 C 320 96, 290 100, 234 98" stroke="#3ea6ff" stroke-width="1.5" fill="none" marker-end="url(#ponta2)"/>
 <text class="rot" x="300" y="118">tempo esgota (fila vazia)</text>
 <path d="M190 114 C 330 168, 520 166, 652 140" stroke="#3ea6ff" stroke-width="1.5" fill="none" marker-end="url(#ponta2)"/>
-<text class="rot" x="345" y="182">mouse em cima / clique / arrastar arquivo</text>
+<text class="rot" x="345" y="182">clique / arrastar arquivo</text>
 <path d="M700 190 C 600 245, 260 245, 110 118" stroke="#3ea6ff" stroke-width="1.5" fill="none" marker-end="url(#ponta2)"/>
 <text class="rot" x="390" y="252">mouse sai / clique fora</text>
 <path d="M555 48 C 610 50, 640 70, 660 88" stroke="#3ea6ff" stroke-width="1.5" fill="none" marker-end="url(#ponta2)"/>
@@ -580,6 +591,8 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <li><b>Cantos:</b> só os de baixo são arredondados (a pílula "sai" da borda da tela). O raio cresce com o tamanho: ~14 px, 24 px e 30 px.</li>
 <li><b>Sem roubar o foco:</b> o estilo <code>WS_EX_NOACTIVATE</code> impede que a janela ganhe foco ao ser clicada. Quando uma caixa de texto precisa do teclado, o app chama <code>RequestKeyboardFocus()</code> para ativá-la de propósito.</li>
 <li><b>Tela cheia:</b> a cada 1,5 s, o app verifica se a janela em primeiro plano ocupa a tela toda. Se ocupar, o notch desaparece com um esmaecimento e para de receber cliques.</li>
+<li><b>Modo gamer:</b> usa o mesmo mecanismo de esconder da tela cheia, mas ligado por você e com timer opcional. O estado fica só na memória (não é salvo em arquivo), por isso reiniciar ou desligar o PC sempre volta ao normal.</li>
+<li><b>Largura do notch fechado:</b> as colunas se ajustam ao conteúdo visível: ~100 px normal, ~146 px com Pomodoro, +18 px com a webcam ligada, 56 px no modo minimalista.</li>
 <li><b>Sempre por cima:</b> no mesmo ciclo, o app reforça a posição "sempre no topo", já que a barra de tarefas às vezes a toma.</li>
 <li><b>Páginas:</b> as ferramentas habilitadas são ordenadas pelo campo <code>Order</code>. Cada página é criada só na primeira vez que é aberta e depois reaproveitada. A troca desliza 28 px na direção da navegação.</li>
 <li><b>Arrastar e soltar:</b> quando arquivos são arrastados sobre a pílula, o notch abre direto na Prateleira; ao soltar, os arquivos vão para <code>ShelfModule.Accept</code>.</li>
@@ -608,7 +621,7 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <li>Alertas com <code>Key</code> (volume, Caps Lock, rede...) atualizam o alerta atual em vez de entrar na fila, e são descartados se o painel estiver aberto.</li>
 <li>Os outros (água, tarefa, site) esperam o painel fechar e aparecem em seguida.</li>
 <li>Com o mouse sobre o alerta, o tempo para de correr; ao sair, sobra 1,5 s.</li>
-<li>Em tela cheia, alertas rápidos são ignorados.</li>
+<li>Em tela cheia ou no modo gamer, alertas rápidos são descartados e os importantes esperam o notch voltar.</li>
 </ul>
 <pre class="bloco"><code class="language-csharp">host.ShowAlert(new NotchAlert("Hora de beber água", "Beba 250 ml · 0,5 de 2,0 L hoje")
 {
@@ -640,7 +653,7 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <p>É uma máquina de estados: <b>Foco → Pausa curta → Foco → ... → Pausa longa</b> (a cada 4 focos completos). O tempo final é guardado como um horário absoluto (<code>_endsAt</code>), então a contagem continua precisa mesmo com o painel fechado. Ao terminar: troca o modo, toca um som do sistema e mostra um alerta com o botão "Iniciar". Os tempos ficam em <code>pomodoro.txt</code>. Enquanto roda, a pílula mostra a contagem com o ícone do modo (laranja no foco, verde na pausa).</p>
 
 <h3>Lembrete de Água (<code>WaterModule</code>)</h3>
-<p>Distribui a meta ao longo do horário escolhido:</p>
+<p>Na tela <b>Lembretes</b> você escolhe o intervalo ("A cada": Auto, 30 min, 45 min, 1 h, 1h30, 2 h) e o horário. Ao trocar o intervalo, a contagem recomeça daquele momento. A linha de status sempre explica o que está acontecendo: "a cada 1 h · próximo 20:56", "fora do horário (08:00–18:00)" ou "lembretes desligados". O botão <b>Testar</b> mostra o alerta de exemplo. No modo <b>Auto</b>, o intervalo distribui a meta ao longo do horário:</p>
 <pre class="bloco"><code>intervalo = (fim − início) ÷ ⌈meta ÷ dose⌉        (mínimo de 15 min)
 próximo   = máx(último gole ou lembrete, início) + intervalo</code></pre>
 <p>Exemplo: das 08:00 às 18:00 (600 min), meta de 2.000 ml e dose de 250 ml → 8 lembretes, um a cada 75 min. Cada "Beber" soma a dose ao total, desconta da garrafa e registra no histórico por hora. Quando a garrafa deveria estar vazia, o alerta muda para "Hora de reabastecer". "Adiar" empurra o lembrete em 10 min. À meia-noite o dia reinicia, e o primeiro lembrete só vem um intervalo depois de ligar o PC. Clique no anel para alternar com o gráfico por hora.</p>
@@ -664,7 +677,8 @@ próximo   = máx(último gole ou lembrete, início) + intervalo</code></pre>
 <tr><td>Música tocando</td><td><code>Windows.Media.Control</code> (GSMTC)</td><td>MediaService.cs</td></tr>
 <tr><td>Volume e mudo</td><td>Core Audio <code>IAudioEndpointVolume</code> (via NAudio), com troca automática de dispositivo</td><td>AudioService.cs</td></tr>
 <tr><td>Mutar microfone</td><td>Core Audio <code>IAudioEndpointVolume.Mute</code> no microfone padrão de comunicação; eventos de mudança + conferência a cada 1 s (alguns headsets, como o Astro A50, não avisam todas as mudanças por evento)</td><td>AudioService.cs</td></tr>
-<tr><td>Nível do som (barrinhas)</td><td>Core Audio <code>IAudioMeterInformation.MasterPeakValue</code>, ~30 fps só quando visível e tocando</td><td>AudioService.cs, AudioBars.cs</td></tr>
+<tr><td>Nível do som (barras)</td><td>Core Audio <code>IAudioMeterInformation.MasterPeakValue</code>, ~30 fps só quando visível e tocando, normalizado pelo maior pico recente (ganho automático)</td><td>AudioService.cs, AudioBars.cs</td></tr>
+<tr><td>Webcam em uso</td><td>Monitor de atividade de sensores do Media Foundation (<code>MFCreateSensorActivityMonitor</code>), o mesmo do aviso de privacidade do Windows; reserva: registro <code>ConsentStore\webcam</code></td><td>CameraService.cs</td></tr>
 <tr><td>Bateria e carregador</td><td><code>SystemInformation.PowerStatus</code>, consultado a cada 3 s</td><td>SystemStatusService.cs</td></tr>
 <tr><td>Internet</td><td><code>NetworkChange</code> + <code>NetworkInformation.GetInternetConnectionProfile</code>, com espera de 2,5 s para estabilizar</td><td>SystemStatusService.cs</td></tr>
 <tr><td>Bluetooth</td><td><code>DeviceWatcher</code> para dispositivos clássicos e BLE conectados</td><td>SystemStatusService.cs</td></tr>
@@ -685,8 +699,8 @@ próximo   = máx(último gole ou lembrete, início) + intervalo</code></pre>
 <div class="tabela"><table>
 <thead><tr><th>Arquivo</th><th>Conteúdo</th></tr></thead>
 <tbody>
-<tr><td><code>%APPDATA%\ProjetoNotch\settings.txt</code></td><td><code>page</code> (última página), <code>minimal</code>, <code>mascot</code>, <code>winnotif</code>, <code>disabled</code> (ferramentas desligadas, separadas por vírgula), <code>alerts.bateria</code>, <code>alerts.volume</code>, <code>alerts.brilho</code>, <code>alerts.caps</code>, <code>alerts.idioma</code>, <code>alerts.rede</code>, <code>alerts.bluetooth</code>, <code>welcomed</code></td></tr>
-<tr><td><code>water.txt</code></td><td><code>bottle</code>, <code>goal</code>, <code>dose</code> (ml), <code>start</code>/<code>end</code> (minutos desde 00:00), <code>on</code>, <code>day</code>, <code>taken</code>, <code>inb</code> (na garrafa), <code>last</code>, <code>fired</code>, <code>hours</code> (24 valores)</td></tr>
+<tr><td><code>%APPDATA%\ProjetoNotch\settings.txt</code></td><td><code>page</code> (última página), <code>minimal</code>, <code>mascot</code>, <code>hover</code> (abrir ao passar o mouse), <code>winnotif</code>, <code>disabled</code> (ferramentas desligadas, separadas por vírgula), <code>alerts.bateria</code>, <code>alerts.volume</code>, <code>alerts.brilho</code>, <code>alerts.caps</code>, <code>alerts.idioma</code>, <code>alerts.rede</code>, <code>alerts.bluetooth</code>, <code>welcomed</code></td></tr>
+<tr><td><code>water.txt</code></td><td><code>bottle</code>, <code>goal</code>, <code>dose</code> (ml), <code>every</code> (intervalo em min; 0 = Auto), <code>start</code>/<code>end</code> (minutos desde 00:00), <code>on</code>, <code>day</code>, <code>taken</code>, <code>inb</code> (na garrafa), <code>last</code>, <code>fired</code>, <code>hours</code> (24 valores)</td></tr>
 <tr><td><code>pomodoro.txt</code></td><td><code>foco</code>, <code>curta</code>, <code>longa</code> (min), <code>ciclos</code></td></tr>
 <tr><td><code>todo.txt</code></td><td>Uma tarefa por linha: <code>feito|diaFeito|hora|diaAvisado|título</code></td></tr>
 <tr><td><code>site.txt</code></td><td><code>url</code>, <code>token</code>, <code>interval</code> (min), <code>on</code>, <code>initialized</code>, <code>seen</code> (IDs vistos), <code>status</code></td></tr>
@@ -886,6 +900,7 @@ python docs\gerar_documentacao.py</code></pre>
 <ul>
 <li><b>Nada é enviado para servidores próprios.</b> As únicas conexões são: <b>lrclib.net</b> (título e artista da música, para buscar a letra), o <b>seu site</b> (se configurado) e as APIs que cada plugin usa (o exemplo usa a AwesomeAPI).</li>
 <li><b>Sem gancho de teclado:</b> o app não lê o que você digita.</li>
+<li><b>Webcam:</b> o notch nunca abre a câmera. Ele só recebe do Windows o aviso de que algum programa começou ou parou de usá-la.</li>
 <li><b>Notificações do Windows</b> ficam desligadas por padrão. Ao ligar, o Windows pede sua permissão, e elas são só exibidas no notch, sem gravação.</li>
 <li><b>Sem administrador:</b> roda com as permissões do seu usuário; a inicialização automática usa só o registro do seu usuário.</li>
 <li><b>Dados locais:</b> todos os arquivos ficam no seu perfil (<code>%APPDATA%</code> e <code>%LOCALAPPDATA%</code>).</li>
@@ -906,6 +921,8 @@ python docs\gerar_documentacao.py</code></pre>
 <tr><td>Notificações do Windows não aparecem</td><td>Ative em Configurações do Windows → Privacidade → Notificações → permitir acesso. Se o Windows recusar para apps fora da Microsoft Store, a opção é desligada e um aviso aparece.</td></tr>
 <tr><td>Erro no site</td><td>O status mostra a causa (endereço errado, sem internet, JSON inválido). Abra o endereço no navegador para conferir.</td></tr>
 <tr><td>Plugin não aparece</td><td>Confira se a DLL está em <code>%APPDATA%\ProjetoNotch\plugins\&lt;Pasta&gt;\</code>, se a classe é <code>public</code> com construtor sem parâmetros, e veja o <code>log.txt</code>.</td></tr>
+<tr><td>Ícone da webcam não aparece</td><td>O ícone só aparece enquanto um programa está <i>transmitindo</i> da câmera (prévia ou chamada ativa). Se ainda assim não aparecer, veja no <code>log.txt</code> se há "Monitor da câmera indisponível".</td></tr>
+<tr><td>O notch sumiu</td><td>Pode ser o modo gamer: clique no ícone dele perto do relógio (pode estar escondido na setinha "^").</td></tr>
 <tr><td>Algo estranho</td><td>Menu → <b>Abrir pasta de dados</b> → <code>log.txt</code>.</td></tr>
 </tbody></table></div>
 </section>

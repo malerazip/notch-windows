@@ -76,4 +76,6 @@ public static class Glyphs
     public const string Message = "";
     public const string Coffee = "";
     public const string History = "";
+    public const string Gamepad = "";
+    public const string Webcam = "";
 }

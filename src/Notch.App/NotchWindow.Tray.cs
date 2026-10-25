@@ -28,7 +28,7 @@ internal sealed partial class NotchWindow
     {
         _menu = new Forms.ContextMenuStrip
         {
-            Renderer = new Forms.ToolStripProfessionalRenderer(new DarkColors()) { RoundedEdges = false },
+            Renderer = new DarkRenderer(),
             ShowImageMargin = false,
             ShowCheckMargin = true,
             Font = new Drawing.Font("Segoe UI", 9.5f),
@@ -53,7 +53,10 @@ internal sealed partial class NotchWindow
         };
         _tray.MouseClick += (_, e) =>
         {
-            if (e.Button == Forms.MouseButtons.Left) Expand();
+            if (e.Button != Forms.MouseButtons.Left) return;
+            // no modo gamer, clicar no ícone da bandeja traz o notch de volta
+            if (_gamer) StopGamer();
+            else Expand();
         };
     }
 
@@ -72,6 +75,22 @@ internal sealed partial class NotchWindow
         var header = new Forms.ToolStripMenuItem($"{Paths.AppName} {Paths.AppVersion}") { Enabled = false };
         _menu.Items.Add(header);
         _menu.Items.Add(new Forms.ToolStripSeparator());
+
+        // Modo gamer: esconde o notch por um tempo ou até desativar aqui
+        var gamer = new Forms.ToolStripMenuItem(_gamer ? $"Modo gamer · {GamerUntilText()}" : "Modo gamer")
+        {
+            ForeColor = _gamer ? Drawing.Color.FromArgb(48, 209, 88) : Drawing.Color.White,
+        };
+        if (_gamer)
+            gamer.DropDownItems.Add(Item("Desativar agora", StopGamer));
+        else
+        {
+            foreach (var (label, minutes) in new[] { ("15 minutos", 15), ("30 minutos", 30), ("1 hora", 60), ("2 horas", 120) })
+                gamer.DropDownItems.Add(Item(label, () => StartGamer(TimeSpan.FromMinutes(minutes))));
+            gamer.DropDownItems.Add(new Forms.ToolStripSeparator());
+            gamer.DropDownItems.Add(Item("Até eu desativar", () => StartGamer(null)));
+        }
+        _menu.Items.Add(gamer);
 
         // Ferramentas (páginas) ligadas/desligadas
         var tools = new Forms.ToolStripMenuItem("Ferramentas") { ForeColor = Drawing.Color.White };
@@ -115,6 +134,7 @@ internal sealed partial class NotchWindow
         }));
 
         _menu.Items.Add(new Forms.ToolStripSeparator());
+        _menu.Items.Add(Check("Abrir ao passar o mouse", Setting("hover", false), on => SaveSetting("hover", on)));
         _menu.Items.Add(Check("Modo minimalista", Setting("minimal", false), on =>
         {
             SaveSetting("minimal", on);
@@ -137,6 +157,17 @@ internal sealed partial class NotchWindow
             Close();
             Application.Current.Shutdown();
         }));
+    }
+
+    private string GamerUntilText() => _gamerUntil is { } u ? $"volta às {u:HH:mm}" : "até desativar";
+
+    private void UpdateTrayText()
+    {
+        if (_tray == null) return;
+        // limite do Windows: 63 caracteres
+        _tray.Text = _gamer
+            ? $"Modo gamer · {GamerUntilText()} · clique para voltar"
+            : Paths.AppName;
     }
 
     private void SaveSetting(string key, bool value)
@@ -172,6 +203,27 @@ internal sealed partial class NotchWindow
             _tray.Dispose();
         }
         _menu?.Dispose();
+    }
+
+    /// <summary>Menu escuro; também pinta o item com submenu aberto (o padrão do Windows usa azul-claro).</summary>
+    private sealed class DarkRenderer() : Forms.ToolStripProfessionalRenderer(new DarkColors())
+    {
+        private static readonly Drawing.SolidBrush HoverBrush = new(Drawing.Color.FromArgb(44, 44, 46));
+
+        protected override void OnRenderMenuItemBackground(Forms.ToolStripItemRenderEventArgs e)
+        {
+            var open = e.Item is Forms.ToolStripMenuItem { DropDown.Visible: true };
+            if (e.Item.Enabled && (e.Item.Selected || open))
+                e.Graphics.FillRectangle(HoverBrush, new Drawing.Rectangle(2, 0, e.Item.Width - 4, e.Item.Height));
+            else
+                base.OnRenderMenuItemBackground(e);
+        }
+
+        protected override void OnRenderArrow(Forms.ToolStripArrowRenderEventArgs e)
+        {
+            e.ArrowColor = Drawing.Color.FromArgb(142, 142, 147);
+            base.OnRenderArrow(e);
+        }
     }
 
     private sealed class DarkColors : Forms.ProfessionalColorTable

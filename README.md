@@ -1,7 +1,7 @@
 # Notch Windows
 
 Um "notch" vivo para o Windows, no estilo Dynamic Island, todo em português. Ele fica no topo
-da tela como uma pílula preta. Passe o mouse para abrir o painel com as ferramentas.
+da tela como uma pílula preta. Clique nela para abrir o painel com as ferramentas.
 
 Ferramentas incluídas:
 
@@ -10,7 +10,7 @@ Ferramentas incluídas:
 | **Tocando Agora** | Música de qualquer player (Spotify, YouTube, Deezer...): capa, play/pause, avançar, voltar e barra de progresso (clique para pular) |
 | **Letra da Música** | Letra sincronizada com a música, via [LRCLIB](https://lrclib.net) |
 | **Timer Pomodoro** | Foco de 25 min e pausas de 5/15 min (tempos ajustáveis); a contagem aparece na pílula |
-| **Lembrete de Água** | Meta diária, garrafa, dose, horário, lembretes e histórico por hora |
+| **Lembrete de Água** | Meta diária, garrafa, dose e histórico por hora; na tela **Lembretes**, escolha o intervalo (Auto, 30 min, 45 min, 1 h, 1h30, 2 h) e o horário |
 | **Lista de Tarefas** | Tarefas com horário opcional e aviso na hora marcada |
 | **Prateleira de Arquivos** | Arraste arquivos, links ou texto para o notch e arraste de volta quando quiser |
 | **Novidades do Site** | Avisa quando algo novo é publicado no seu site (veja abaixo) |
@@ -18,6 +18,13 @@ Ferramentas incluídas:
 **Botão do microfone:** sempre visível no canto direito da pílula: verde = ligado, vermelho
 cortado = mudo, cinza = sem microfone. Um clique muta/libera o microfone do Windows (vale para
 Teams, Zoom, Meet...) sem abrir o painel.
+
+**Indicador da webcam:** quando algum programa está usando a webcam, um ícone verde de câmera
+aparece ao lado do microfone. Com a webcam desligada, nenhum ícone. O notch nunca abre a câmera:
+ele só recebe o aviso do Windows.
+
+**Modo gamer:** no menu, esconde o notch por 15 min, 30 min, 1 h, 2 h ou até você desativar
+(clique no ícone perto do relógio). Reiniciar ou desligar o PC sempre volta ao normal.
 
 Documentação completa, com o código-fonte comentado: abra `docs/documentacao.html` no navegador.
 
@@ -27,11 +34,13 @@ Caps Lock, idioma do teclado, internet, Bluetooth e, se você ligar, as notifica
 ## Como usar
 
 - **Notch fechado** (ou compactado): a pílula parada no topo. **Notch aberto** (ou expandido): o painel com as ferramentas.
-- **Passar o mouse** sobre a pílula abre o painel. **Clique direito** abre o menu.
+- **Clique** no notch fechado para abrir. **Clique direito** abre o menu. (Para abrir só passando
+  o mouse, ligue "Abrir ao passar o mouse" no menu.)
 - Para trocar de página, use as **setas**, os **pontinhos** ou a **roda do mouse**.
 - Ao **arrastar arquivos** para o notch, ele abre direto na Prateleira.
-- O menu (clique direito no notch ou no ícone perto do relógio do Windows) tem: ferramentas
-  ligadas/desligadas, alertas, modo minimalista, mascote, iniciar com o Windows e as pastas de plugins e de dados.
+- O menu (clique direito no notch ou no ícone perto do relógio do Windows) tem: modo gamer,
+  ferramentas ligadas/desligadas, microfone mudo, alertas, abrir ao passar o mouse, modo minimalista,
+  mascote, iniciar com o Windows e as pastas de plugins e de dados.
 - Em tela cheia (filmes, jogos, apresentações) o notch se esconde sozinho.
 
 Os dados ficam em `%APPDATA%\ProjetoNotch` (arquivos `.txt` simples) e a prateleira fica em

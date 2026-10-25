@@ -20,7 +20,7 @@ namespace Notch.App;
 
 /// <summary>
 /// A janela do notch: uma pílula preta no topo da tela que cresce para mostrar alertas
-/// e se expande (ao passar o mouse) num painel com páginas de ferramentas.
+/// e se expande (ao clicar, ou ao passar o mouse se a opção estiver ligada) num painel com páginas de ferramentas.
 /// </summary>
 internal sealed partial class NotchWindow : Window, INotchHost
 {
@@ -77,7 +77,11 @@ internal sealed partial class NotchWindow : Window, INotchHost
     private readonly Border _compactArt = new() { Width = 20, Height = 20, CornerRadius = new CornerRadius(5) };
     private readonly TextBlock _compactTimerIcon = Ui.Icon(Glyphs.Timer, 13);
     private readonly TextBlock _compactMicIcon = Ui.Icon(Glyphs.Microphone, 13);
-    private readonly Border _compactMic = new() { Width = 24, Height = 24, CornerRadius = new CornerRadius(12), Background = Brushes.Transparent, Cursor = Cursors.Hand };
+    private readonly TextBlock _compactCam = Ui.Icon(Glyphs.Webcam, 13, NotchTheme.Green);
+    private readonly TextBlock _headerCam = Ui.Icon(Glyphs.Webcam, 13, NotchTheme.Green);
+    private bool _cameraOn;
+    private readonly CameraService _camera = new();
+    private readonly Border _compactMic = new() { Width = 22, Height = 22, CornerRadius = new CornerRadius(11), Background = Brushes.Transparent, Cursor = Cursors.Hand };
     private Border _micButton = null!;
     private bool? _lastMicMuted;
     private readonly AudioBars _compactBars = new();
@@ -158,11 +162,12 @@ internal sealed partial class NotchWindow : Window, INotchHost
     private void BuildCompact()
     {
         _compactLayer.VerticalAlignment = VerticalAlignment.Top;
-        _compactLayer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(28) });
+        // colunas "Auto": cada espaço só ocupa o tamanho do ícone visível, então o notch fechado fica estreito
+        _compactLayer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         _compactLayer.ColumnDefinitions.Add(new ColumnDefinition());
-        _compactLayer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(28) });
-        _compactLayer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
-        _compactLayer.Margin = new Thickness(12, 0, 8, 0);
+        _compactLayer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        _compactLayer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        _compactLayer.Margin = new Thickness(10, 0, 5, 0);
 
         var left = new Grid { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
         left.Children.Add(_compactBattery);
@@ -178,12 +183,18 @@ internal sealed partial class NotchWindow : Window, INotchHost
         _compactMic.MouseLeave += (_, _) =>
         {
             _compactMic.Background = Brushes.Transparent;
-            if (_state == State.Compact && _shell.IsMouseOver) _hoverTimer.Start();
+            if (OpenOnHover && _state == State.Compact && _shell.IsMouseOver) _hoverTimer.Start();
         };
         _compactMic.MouseLeftButtonDown += (_, e) => e.Handled = true;
         _compactMic.MouseLeftButtonUp += (_, e) => { ToggleMic(showAlert: false); e.Handled = true; };
-        Grid.SetColumn(_compactMic, 3);
-        _compactLayer.Children.Add(_compactMic);
+        // webcam (só aparece quando está em uso) fica ao lado do microfone
+        _compactCam.Margin = new Thickness(0, 0, 2, 0);
+        _compactCam.Visibility = Visibility.Collapsed;
+        var status = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+        status.Children.Add(_compactCam);
+        status.Children.Add(_compactMic);
+        Grid.SetColumn(status, 3);
+        _compactLayer.Children.Add(status);
 
         _compactTime.HorizontalAlignment = HorizontalAlignment.Center;
         Grid.SetColumn(_compactTime, 1);
@@ -192,10 +203,13 @@ internal sealed partial class NotchWindow : Window, INotchHost
         var right = new Grid { HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center };
         right.Children.Add(_compactBars);
         right.Children.Add(_compactMascot);
+        _compactBars.Margin = new Thickness(0, 0, 3, 0);
+        _compactMascot.Margin = new Thickness(0, 0, 3, 0);
         Grid.SetColumn(right, 2);
         _compactLayer.Children.Add(right);
 
         _compactLayer.Background = Brushes.Transparent;
+        _compactLayer.Cursor = Cursors.Hand; // indica que o notch fechado abre com clique
         _compactLayer.MouseLeftButtonUp += (_, _) => { if (_state == State.Compact) Expand(); };
     }
 
@@ -214,9 +228,10 @@ internal sealed partial class NotchWindow : Window, INotchHost
         header.Children.Add(_title);
         _headerTime.Margin = new Thickness(0);
         _micButton = Ui.IconButton(Glyphs.Microphone, () => ToggleMic(), 24, NotchTheme.Surface, NotchTheme.Text, 11);
-        var right = Ui.Row(8, _micButton, _headerBattery, _headerDate, _headerTime, new Grid { Children = { _headerBars, _headerMascot }, Margin = new Thickness(12, 0, 0, 0) });
+        _headerCam.Visibility = Visibility.Collapsed;
+        var right = Ui.Row(8, _headerCam, _micButton, _headerBattery, _headerDate, _headerTime, new Grid { Children = { _headerBars, _headerMascot }, Margin = new Thickness(12, 0, 0, 0) });
         right.HorizontalAlignment = HorizontalAlignment.Right;
-        ((FrameworkElement)right.Children[4]).Margin = new Thickness(14, 0, 0, 0);
+        ((FrameworkElement)right.Children[5]).Margin = new Thickness(14, 0, 0, 0);
         header.Children.Add(right);
         _expandedLayer.Children.Add(header);
 
@@ -300,7 +315,8 @@ internal sealed partial class NotchWindow : Window, INotchHost
         {
             _leaveTimer.Stop();
             if (_state == State.Alert) _alertTimer.Stop();       // não some enquanto o mouse está em cima
-            else if (_state == State.Compact && !_compactMic.IsMouseOver) _hoverTimer.Start();
+            // por padrão o notch só abre com clique; abrir ao passar o mouse é uma opção do menu
+            else if (_state == State.Compact && OpenOnHover && !_compactMic.IsMouseOver) _hoverTimer.Start();
         };
         _shell.MouseLeave += (_, _) =>
         {
@@ -317,8 +333,9 @@ internal sealed partial class NotchWindow : Window, INotchHost
         _hoverTimer.Tick += (_, _) =>
         {
             _hoverTimer.Stop();
-            if (_shell.IsMouseOver && !_compactMic.IsMouseOver && _state == State.Compact) Expand();
+            if (OpenOnHover && _shell.IsMouseOver && !_compactMic.IsMouseOver && _state == State.Compact) Expand();
         };
+
         _leaveTimer.Tick += (_, _) =>
         {
             _leaveTimer.Stop();
@@ -370,7 +387,7 @@ internal sealed partial class NotchWindow : Window, INotchHost
             _leaveTimer.Start();
         };
 
-        _clockTimer.Tick += (_, _) => { UpdateClock(); UpdateCompact(); _audio.SyncMic(); };
+        _clockTimer.Tick += (_, _) => { UpdateClock(); UpdateCompact(); _audio.SyncMic(); UpdateCamera(); };
         _clockTimer.Start();
         _guardTimer.Tick += (_, _) => GuardTick();
         _guardTimer.Start();
@@ -416,7 +433,7 @@ internal sealed partial class NotchWindow : Window, INotchHost
                 _settings.Set("welcomed", true);
                 _settings.Save();
                 Autostart.Set(true);
-                ShowAlert(new NotchAlert("Olá! Eu sou o seu notch 👋", "Passe o mouse aqui em cima para abrir")
+                ShowAlert(new NotchAlert("Olá! Eu sou o seu notch 👋", "Clique aqui em cima para abrir")
                 {
                     Glyph = Glyphs.Info,
                     Accent = NotchTheme.Accent,
@@ -478,8 +495,42 @@ internal sealed partial class NotchWindow : Window, INotchHost
 
     // ------------------------------------------------------------------ estados
 
-    // inclui o espaço do ícone de microfone, que fica sempre visível
-    private (double w, double h) CompactSize => Setting("minimal", false) ? (150, 26) : (224, 32);
+    // Notch fechado não mostra a hora; só alarga quando há contagem do Pomodoro no meio.
+    // Inclui o espaço do ícone de microfone, que fica sempre visível.
+    // A webcam, quando está em uso, soma mais um ícone ao lado do microfone.
+    private (double w, double h) CompactSize
+    {
+        get
+        {
+            var (w, h) = (Setting("minimal", false), _pomodoro.IsRunning) switch
+            {
+                (true, true) => (96d, 26d),     // minimalista: contagem + microfone
+                (true, false) => (56d, 26d),    // minimalista: só o microfone
+                (false, true) => (146d, 30d),   // ícone · contagem · barrinhas · microfone
+                (false, false) => (100d, 30d),  // ícone · barrinhas · microfone, sem vão no meio
+            };
+            return (_cameraOn ? w + 18 : w, h);
+        }
+    }
+
+    private (double w, double h) _appliedCompactSize;
+
+    // ------------------------------------------------------------------ webcam
+
+    /// <summary>Mostra o ícone da webcam só enquanto algum app estiver usando a câmera.</summary>
+    private void UpdateCamera()
+    {
+        var apps = _camera.AppsInUse();
+        var on = apps.Count > 0;
+        var tip = on ? "Webcam em uso: " + string.Join(", ", apps) : null;
+        _compactCam.ToolTip = tip;
+        _headerCam.ToolTip = tip;
+        if (on == _cameraOn) return;
+        _cameraOn = on;
+        _compactCam.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
+        _headerCam.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
+        UpdateCompact(); // ajusta a largura do notch fechado
+    }
 
     private void SetState(State state, bool animate = true)
     {
@@ -497,6 +548,7 @@ internal sealed partial class NotchWindow : Window, INotchHost
                 break;
             default:
                 (w, h) = CompactSize;
+                _appliedCompactSize = (w, h);
                 radius = h / 2.2;
                 _compactLayer.Height = h;
                 break;
@@ -558,7 +610,7 @@ internal sealed partial class NotchWindow : Window, INotchHost
         _alertTimer.Stop();
         _currentAlert = null;
         _hoverTimer.Stop();
-        if (_pages.Count == 0) return;
+        if (_pages.Count == 0 || IsHidden) return;
         SetPage(_pageIndex, animate: false);
         SetState(State.Expanded);
     }
@@ -571,7 +623,7 @@ internal sealed partial class NotchWindow : Window, INotchHost
         if (_alerts.Count > 0)
         {
             var t = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(380) };
-            t.Tick += (_, _) => { t.Stop(); if (_state == State.Compact) ShowNextAlert(); };
+            t.Tick += (_, _) => { t.Stop(); if (_state == State.Compact && !IsHidden) ShowNextAlert(); };
             t.Start();
         }
     }
@@ -648,7 +700,8 @@ internal sealed partial class NotchWindow : Window, INotchHost
             Dispatcher.BeginInvoke(() => ShowAlert(alert));
             return;
         }
-        if (_hiddenForFullscreen && alert.Key != null) return;
+        // escondido (tela cheia ou modo gamer): avisos rápidos são descartados; os importantes esperam o notch voltar
+        if (IsHidden && alert.Key != null) return;
 
         // mesmo tipo (volume, caps lock...): atualiza o alerta atual em vez de enfileirar
         if (alert.Key != null && _state == State.Alert && _currentAlert?.Key == alert.Key)
@@ -669,7 +722,7 @@ internal sealed partial class NotchWindow : Window, INotchHost
             foreach (var a in rest) _alerts.Enqueue(a);
         }
         _alerts.Enqueue(alert);
-        if (_state == State.Compact) ShowNextAlert();
+        if (_state == State.Compact && !IsHidden) ShowNextAlert();
     }
 
     private void ShowNextAlert()
@@ -789,18 +842,19 @@ internal sealed partial class NotchWindow : Window, INotchHost
         var playing = _media.IsPlaying && _media.HasSession;
         var timer = _pomodoro.IsRunning;
 
+        // a hora não aparece no notch fechado; o meio só mostra a contagem do Pomodoro
         _compactTime.FontSize = minimal ? 11.5 : 13;
+        _compactTime.Visibility = timer ? Visibility.Visible : Visibility.Collapsed;
         if (timer)
         {
             var r = _pomodoro.Remaining;
             _compactTime.Text = $"{(int)r.TotalMinutes:00}:{r.Seconds:00}";
             _compactTime.Foreground = _pomodoro.ModeBrush;
         }
-        else
-        {
-            _compactTime.Text = DateTime.Now.ToString("HH:mm", Br);
-            _compactTime.Foreground = NotchTheme.Text;
-        }
+
+        // Pomodoro começou/parou com o notch fechado: ajusta a largura com animação
+        if (IsLoaded && _state == State.Compact && CompactSize != _appliedCompactSize)
+            SetState(State.Compact);
 
         _compactTimerIcon.Visibility = !minimal && timer ? Visibility.Visible : Visibility.Collapsed;
         _compactTimerIcon.Foreground = _pomodoro.ModeBrush;
@@ -839,12 +893,61 @@ internal sealed partial class NotchWindow : Window, INotchHost
         if (fullscreen != _hiddenForFullscreen)
         {
             _hiddenForFullscreen = fullscreen;
-            _root.BeginAnimation(OpacityProperty, new DoubleAnimation(fullscreen ? 0 : 1, TimeSpan.FromMilliseconds(200)));
-            _root.IsHitTestVisible = !fullscreen;
-            if (fullscreen && _state == State.Expanded) Collapse();
+            ApplyVisibility();
         }
-        if (!fullscreen)
+
+        // modo gamer com timer: volta sozinho na hora marcada
+        if (_gamer && _gamerUntil is { } until && DateTime.Now >= until) StopGamer();
+
+        if (!IsHidden)
             Native.SetWindowPos(_hwnd, Native.HWND_TOPMOST, 0, 0, 0, 0, Native.SWP_NOMOVE | Native.SWP_NOSIZE | Native.SWP_NOACTIVATE);
+    }
+
+    // ------------------------------------------------------------------ modo gamer
+
+    // Não é salvo em arquivo de propósito: reiniciar ou desligar o PC sempre volta ao modo normal.
+    private bool _gamer;
+    private DateTime? _gamerUntil;
+
+    /// <summary>Escondido por tela cheia ou pelo modo gamer.</summary>
+    private bool IsHidden => _hiddenForFullscreen || _gamer;
+
+    private void ApplyVisibility()
+    {
+        var hidden = IsHidden;
+        _root.BeginAnimation(OpacityProperty, new DoubleAnimation(hidden ? 0 : 1, TimeSpan.FromMilliseconds(200)));
+        _root.IsHitTestVisible = !hidden;
+        if (hidden)
+        {
+            if (_state == State.Expanded) Collapse();
+            else if (_state == State.Alert) { _alertTimer.Stop(); _currentAlert = null; SetState(State.Compact, animate: false); }
+        }
+        else if (_state == State.Compact && _alerts.Count > 0)
+        {
+            // mostra o que ficou guardado enquanto estava escondido
+            var t = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(400) };
+            t.Tick += (_, _) => { t.Stop(); if (_state == State.Compact && !IsHidden) ShowNextAlert(); };
+            t.Start();
+        }
+    }
+
+    /// <param name="duration">null = até desativar pela bandeja.</param>
+    private void StartGamer(TimeSpan? duration)
+    {
+        _gamer = true;
+        _gamerUntil = duration is { } d ? DateTime.Now + d : null;
+        ApplyVisibility();
+        UpdateTrayText();
+    }
+
+    private void StopGamer()
+    {
+        if (!_gamer) return;
+        _gamer = false;
+        _gamerUntil = null;
+        UpdateTrayText();
+        ShowAlert(new NotchAlert("Modo gamer desativado", "O notch voltou") { Glyph = Glyphs.Gamepad, Accent = NotchTheme.Green, Duration = TimeSpan.FromSeconds(2.5) });
+        ApplyVisibility();
     }
 
     private void Reposition()
@@ -882,6 +985,9 @@ internal sealed partial class NotchWindow : Window, INotchHost
 
     private bool Setting(string key) => Setting(key, true);
 
+    /// <summary>Opção do menu "Abrir ao passar o mouse" (desligada: abre só com clique).</summary>
+    private bool OpenOnHover => Setting("hover", false);
+
     private bool Setting(string key, bool fallback) => _settings.GetBool(key, fallback);
 
     protected override void OnClosed(EventArgs e)
@@ -891,6 +997,7 @@ internal sealed partial class NotchWindow : Window, INotchHost
             try { m.Stop(); } catch { }
         }
         _status.Dispose();
+        _camera.Dispose();
         _winNotif.Stop();
         DisposeTray();
         base.OnClosed(e);
