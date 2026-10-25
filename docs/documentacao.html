@@ -193,7 +193,7 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <div class="numeros">
   <div class="numero"><b>8</b><span>ferramentas (7 internas + 1 plugin)</span></div>
   <div class="numero"><b>38</b><span>arquivos de código</span></div>
-  <div class="numero"><b>4.838</b><span>linhas de código</span></div>
+  <div class="numero"><b>4.888</b><span>linhas de código</span></div>
   <div class="numero"><b>~95 MB</b><span>de memória em uso</span></div>
 </div>
 <p class="sub">Versão 1.0.0 · documentação gerada em 25/10/2026 a partir do código atual.</p>
@@ -243,7 +243,7 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <div class="cartao"><h4><span class="ponto" style="background:var(--purple)"></span>Lista de Tarefas</h4><p>Adicionar, editar, concluir e excluir tarefas, com horário opcional. Na hora marcada aparece um alerta com "Concluir" e "+10 min".</p></div>
 <div class="cartao"><h4><span class="ponto" style="background:var(--green)"></span>Prateleira de Arquivos</h4><p>Arraste arquivos, pastas, links ou textos para o notch. Eles ficam guardados até você arrastá-los para outro lugar (e-mail, WhatsApp Web, outra pasta) ou abri-los com um clique.</p></div>
 <div class="cartao"><h4><span class="ponto" style="background:var(--purple)"></span>Novidades do Site</h4><p>Consulta seu site de tempos em tempos e avisa quando algo novo é publicado, com um botão para abrir. Aceita JSON, RSS e Atom.</p></div>
-<div class="cartao"><h4><span class="ponto" style="background:var(--red)"></span>Botão do microfone</h4><p>No cabeçalho do painel: um clique muta o microfone do Windows (vale para Teams, Zoom, Meet, WhatsApp), outro clique libera. Enquanto estiver mudo, um microfone vermelho aparece na pílula. Também está no menu.</p></div>
+<div class="cartao"><h4><span class="ponto" style="background:var(--red)"></span>Botão do microfone</h4><p>Sempre visível no canto direito da pílula: <b>verde</b> = ligado, <b>vermelho cortado</b> = mudo, <b>cinza</b> = sem microfone. Um clique muta/libera o microfone do Windows (vale para Teams, Zoom, Meet, WhatsApp) sem abrir o painel. O estado é conferido a cada segundo, então mudanças feitas em outros apps ou no próprio headset aparecem na hora. Também fica no cabeçalho do painel e no menu.</p></div>
 <div class="cartao"><h4><span class="ponto" style="background:var(--green)"></span>Cotação do Dia (plugin)</h4><p>Exemplo de ferramenta externa: dólar, euro e bitcoin com variação do dia. Serve de modelo para criar as suas.</p></div>
 </div>
 <h3>Alertas automáticos do sistema</h3>
@@ -281,6 +281,7 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <tr><td>Passar o mouse sobre a pílula</td><td>Abre o painel (após ~0,15 s, para evitar aberturas acidentais).</td></tr>
 <tr><td>Tirar o mouse do painel</td><td>Fecha após ~0,45 s. Se você estiver digitando, só fecha ao clicar fora.</td></tr>
 <tr><td>Clique na pílula</td><td>Abre o painel na hora.</td></tr>
+<tr><td>Clique no microfone da pílula</td><td>Muta/libera o microfone sem abrir o painel (verde = ligado, vermelho = mudo).</td></tr>
 <tr><td>Setas laterais, pontinhos ou roda do mouse</td><td>Trocam de página. A última página aberta é lembrada.</td></tr>
 <tr><td>Clique direito no notch</td><td>Abre o menu de configurações.</td></tr>
 <tr><td>Clique no ícone da bandeja (perto do relógio)</td><td>Esquerdo abre o painel; direito abre o menu.</td></tr>
@@ -514,7 +515,7 @@ próximo   = máx(último gole ou lembrete, início) + intervalo</code></pre>
 <tbody>
 <tr><td>Música tocando</td><td><code>Windows.Media.Control</code> (GSMTC)</td><td>MediaService.cs</td></tr>
 <tr><td>Volume e mudo</td><td>Core Audio <code>IAudioEndpointVolume</code> (via NAudio), com troca automática de dispositivo</td><td>AudioService.cs</td></tr>
-<tr><td>Mutar microfone</td><td>Core Audio <code>IAudioEndpointVolume.Mute</code> no microfone padrão de comunicação, com aviso de troca/conexão de dispositivo</td><td>AudioService.cs</td></tr>
+<tr><td>Mutar microfone</td><td>Core Audio <code>IAudioEndpointVolume.Mute</code> no microfone padrão de comunicação; eventos de mudança + conferência a cada 1 s (alguns headsets, como o Astro A50, não avisam todas as mudanças por evento)</td><td>AudioService.cs</td></tr>
 <tr><td>Nível do som (barrinhas)</td><td>Core Audio <code>IAudioMeterInformation.MasterPeakValue</code>, ~30 fps só quando visível e tocando</td><td>AudioService.cs, AudioBars.cs</td></tr>
 <tr><td>Bateria e carregador</td><td><code>SystemInformation.PowerStatus</code>, consultado a cada 3 s</td><td>SystemStatusService.cs</td></tr>
 <tr><td>Internet</td><td><code>NetworkChange</code> + <code>NetworkInformation.GetInternetConnectionProfile</code>, com espera de 2,5 s para estabilizar</td><td>SystemStatusService.cs</td></tr>
@@ -764,10 +765,10 @@ python docs\gerar_documentacao.py</code></pre>
 <!-- =============================================================== -->
 <section id="codigo">
 <h2>Código-fonte completo</h2>
-<p class="sub">Todos os 38 arquivos (4.838 linhas), exatamente como estão no projeto. Clique num arquivo para expandir.</p>
+<p class="sub">Todos os 38 arquivos (4.888 linhas), exatamente como estão no projeto. Clique num arquivo para expandir.</p>
 <div class="botoes-codigo"><button type="button" id="abrirTodos">Expandir todos</button><button type="button" id="fecharTodos">Recolher todos</button></div>
 <h3>Mapa de arquivos</h3>
-<div class="tabela"><table><thead><tr><th>Arquivo</th><th class="num">Linhas</th><th>O que faz</th></tr></thead><tbody><tr><td><a href="#arq-directory-build-props"><code>Directory.Build.props</code></a></td><td class="num">18</td><td>Configurações comuns a todos os projetos: .NET 10, WPF, versão e pasta de compilação fora do OneDrive.</td></tr><tr><td><a href="#arq-projetonotch-slnx"><code>ProjetoNotch.slnx</code></a></td><td class="num">10</td><td>Solução que agrupa o app, o SDK e o plugin de exemplo.</td></tr><tr><td><a href="#arq-publicar-ps1"><code>publicar.ps1</code></a></td><td class="num">22</td><td>Script que compila e gera dist\ProjetoNotch.exe (e opcionalmente instala o plugin de exemplo).</td></tr><tr><td><a href="#arq-src-notch-app-notch-app-csproj"><code>src/Notch.App/Notch.App.csproj</code></a></td><td class="num">36</td><td>Projeto do aplicativo: dependências (NAudio, System.Management), ícone e manifesto.</td></tr><tr><td><a href="#arq-src-notch-app-app-manifest"><code>src/Notch.App/app.manifest</code></a></td><td class="num">23</td><td>Manifesto do Windows: execução sem administrador e DPI por monitor (nitidez em telas 4K).</td></tr><tr><td><a href="#arq-src-notch-sdk-notch-sdk-csproj"><code>src/Notch.Sdk/Notch.Sdk.csproj</code></a></td><td class="num">10</td><td>Biblioteca compartilhada entre o app e os plugins.</td></tr><tr><td><a href="#arq-src-notch-sdk-inotchmodule-cs"><code>src/Notch.Sdk/INotchModule.cs</code></a></td><td class="num">57</td><td>Contratos: INotchModule (uma ferramenta) e INotchHost (serviços que o notch oferece).</td></tr><tr><td><a href="#arq-src-notch-sdk-notchalert-cs"><code>src/Notch.Sdk/NotchAlert.cs</code></a></td><td class="num">32</td><td>Modelo dos alertas: título, mensagem, ícone, barra de progresso, botões de ação.</td></tr><tr><td><a href="#arq-src-notch-sdk-keyvaluefile-cs"><code>src/Notch.Sdk/KeyValueFile.cs</code></a></td><td class="num">51</td><td>Armazenamento simples em arquivos .txt no formato chave=valor.</td></tr><tr><td><a href="#arq-src-notch-sdk-notchtheme-cs"><code>src/Notch.Sdk/NotchTheme.cs</code></a></td><td class="num">80</td><td>Cores, fontes e glifos (ícones) do visual do notch.</td></tr><tr><td><a href="#arq-src-notch-sdk-ui-cs"><code>src/Notch.Sdk/Ui.cs</code></a></td><td class="num">237</td><td>Componentes prontos: textos, botões em pílula, chips, interruptor, barra de progresso, campo de texto.</td></tr><tr><td><a href="#arq-src-notch-app-app-xaml"><code>src/Notch.App/App.xaml</code></a></td><td class="num">15</td><td>Definição do aplicativo WPF e estilo das dicas (tooltips).</td></tr><tr><td><a href="#arq-src-notch-app-app-xaml-cs"><code>src/Notch.App/App.xaml.cs</code></a></td><td class="num">50</td><td>Início do app: instância única, idioma pt-BR, tratamento global de erros.</td></tr><tr><td><a href="#arq-src-notch-app-notchwindow-cs"><code>src/Notch.App/NotchWindow.cs</code></a></td><td class="num">875</td><td>O coração do app: a pílula, os três estados, animações, alertas, páginas e arrastar-e-soltar.</td></tr><tr><td><a href="#arq-src-notch-app-notchwindow-tray-cs"><code>src/Notch.App/NotchWindow.Tray.cs</code></a></td><td class="num">201</td><td>Ícone da bandeja e menu escuro de configurações.</td></tr><tr><td><a href="#arq-src-notch-app-core-paths-cs"><code>src/Notch.App/Core/Paths.cs</code></a></td><td class="num">33</td><td>Pastas de dados, plugins e prateleira; arquivo de log.</td></tr><tr><td><a href="#arq-src-notch-app-core-autostart-cs"><code>src/Notch.App/Core/Autostart.cs</code></a></td><td class="num">27</td><td>Liga/desliga o &quot;Iniciar com o Windows&quot; (registro do usuário).</td></tr><tr><td><a href="#arq-src-notch-app-core-native-cs"><code>src/Notch.App/Core/Native.cs</code></a></td><td class="num">65</td><td>Chamadas diretas à API do Windows (janela em primeiro plano, Caps Lock, idioma, sempre no topo).</td></tr><tr><td><a href="#arq-src-notch-app-core-pluginloader-cs"><code>src/Notch.App/Core/PluginLoader.cs</code></a></td><td class="num">63</td><td>Carregador de plugins: lê as DLLs da pasta de plugins em contextos isolados.</td></tr><tr><td><a href="#arq-src-notch-app-controls-ringprogress-cs"><code>src/Notch.App/Controls/RingProgress.cs</code></a></td><td class="num">60</td><td>Anel de progresso (água, pomodoro).</td></tr><tr><td><a href="#arq-src-notch-app-controls-audiobars-cs"><code>src/Notch.App/Controls/AudioBars.cs</code></a></td><td class="num">85</td><td>Barrinhas de áudio que reagem ao volume real do som.</td></tr><tr><td><a href="#arq-src-notch-app-controls-batteryicon-cs"><code>src/Notch.App/Controls/BatteryIcon.cs</code></a></td><td class="num">61</td><td>Anel de bateria com raio ao carregar.</td></tr><tr><td><a href="#arq-src-notch-app-controls-mascot-cs"><code>src/Notch.App/Controls/Mascot.cs</code></a></td><td class="num">74</td><td>Mascote: olhinhos que piscam e olham para os lados.</td></tr><tr><td><a href="#arq-src-notch-app-services-mediaservice-cs"><code>src/Notch.App/Services/MediaService.cs</code></a></td><td class="num">169</td><td>Música tocando em qualquer player, via controles de mídia do Windows.</td></tr><tr><td><a href="#arq-src-notch-app-services-lyricsservice-cs"><code>src/Notch.App/Services/LyricsService.cs</code></a></td><td class="num">111</td><td>Busca de letras sincronizadas no LRCLIB.</td></tr><tr><td><a href="#arq-src-notch-app-services-audioservice-cs"><code>src/Notch.App/Services/AudioService.cs</code></a></td><td class="num">130</td><td>Volume do Windows e nível do som (Core Audio, via NAudio).</td></tr><tr><td><a href="#arq-src-notch-app-services-systemstatusservice-cs"><code>src/Notch.App/Services/SystemStatusService.cs</code></a></td><td class="num">266</td><td>Bateria, carregador, rede, Bluetooth, Caps Lock, idioma do teclado e brilho.</td></tr><tr><td><a href="#arq-src-notch-app-services-windowsnotificationservice-cs"><code>src/Notch.App/Services/WindowsNotificationService.cs</code></a></td><td class="num">112</td><td>Espelho das notificações do Windows (opcional).</td></tr><tr><td><a href="#arq-src-notch-app-modules-modulebase-cs"><code>src/Notch.App/Modules/ModuleBase.cs</code></a></td><td class="num">36</td><td>Base das ferramentas internas (timer que só roda com a página visível).</td></tr><tr><td><a href="#arq-src-notch-app-modules-musicmodule-cs"><code>src/Notch.App/Modules/MusicModule.cs</code></a></td><td class="num">126</td><td>Página &quot;Tocando Agora&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-lyricsmodule-cs"><code>src/Notch.App/Modules/LyricsModule.cs</code></a></td><td class="num">138</td><td>Página &quot;Letra da Música&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-pomodoromodule-cs"><code>src/Notch.App/Modules/PomodoroModule.cs</code></a></td><td class="num">210</td><td>Página &quot;Timer Pomodoro&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-watermodule-cs"><code>src/Notch.App/Modules/WaterModule.cs</code></a></td><td class="num">331</td><td>Página &quot;Lembrete de Água&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-todomodule-cs"><code>src/Notch.App/Modules/TodoModule.cs</code></a></td><td class="num">267</td><td>Página &quot;Lista de Tarefas&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-shelfmodule-cs"><code>src/Notch.App/Modules/ShelfModule.cs</code></a></td><td class="num">283</td><td>Página &quot;Prateleira de Arquivos&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-sitemodule-cs"><code>src/Notch.App/Modules/SiteModule.cs</code></a></td><td class="num">344</td><td>Página &quot;Novidades do Site&quot; (conexão com o seu site).</td></tr><tr><td><a href="#arq-plugins-exemplo-cotacao-exemplo-cotacao-csproj"><code>plugins/Exemplo.Cotacao/Exemplo.Cotacao.csproj</code></a></td><td class="num">20</td><td>Projeto do plugin: referencia o Notch.Sdk sem copiá-lo.</td></tr><tr><td><a href="#arq-plugins-exemplo-cotacao-cotacaomodule-cs"><code>plugins/Exemplo.Cotacao/CotacaoModule.cs</code></a></td><td class="num">110</td><td>Página &quot;Cotação do Dia&quot;: dólar, euro e bitcoin pela AwesomeAPI.</td></tr></tbody></table></div>
+<div class="tabela"><table><thead><tr><th>Arquivo</th><th class="num">Linhas</th><th>O que faz</th></tr></thead><tbody><tr><td><a href="#arq-directory-build-props"><code>Directory.Build.props</code></a></td><td class="num">18</td><td>Configurações comuns a todos os projetos: .NET 10, WPF, versão e pasta de compilação fora do OneDrive.</td></tr><tr><td><a href="#arq-projetonotch-slnx"><code>ProjetoNotch.slnx</code></a></td><td class="num">10</td><td>Solução que agrupa o app, o SDK e o plugin de exemplo.</td></tr><tr><td><a href="#arq-publicar-ps1"><code>publicar.ps1</code></a></td><td class="num">22</td><td>Script que compila e gera dist\ProjetoNotch.exe (e opcionalmente instala o plugin de exemplo).</td></tr><tr><td><a href="#arq-src-notch-app-notch-app-csproj"><code>src/Notch.App/Notch.App.csproj</code></a></td><td class="num">36</td><td>Projeto do aplicativo: dependências (NAudio, System.Management), ícone e manifesto.</td></tr><tr><td><a href="#arq-src-notch-app-app-manifest"><code>src/Notch.App/app.manifest</code></a></td><td class="num">23</td><td>Manifesto do Windows: execução sem administrador e DPI por monitor (nitidez em telas 4K).</td></tr><tr><td><a href="#arq-src-notch-sdk-notch-sdk-csproj"><code>src/Notch.Sdk/Notch.Sdk.csproj</code></a></td><td class="num">10</td><td>Biblioteca compartilhada entre o app e os plugins.</td></tr><tr><td><a href="#arq-src-notch-sdk-inotchmodule-cs"><code>src/Notch.Sdk/INotchModule.cs</code></a></td><td class="num">57</td><td>Contratos: INotchModule (uma ferramenta) e INotchHost (serviços que o notch oferece).</td></tr><tr><td><a href="#arq-src-notch-sdk-notchalert-cs"><code>src/Notch.Sdk/NotchAlert.cs</code></a></td><td class="num">32</td><td>Modelo dos alertas: título, mensagem, ícone, barra de progresso, botões de ação.</td></tr><tr><td><a href="#arq-src-notch-sdk-keyvaluefile-cs"><code>src/Notch.Sdk/KeyValueFile.cs</code></a></td><td class="num">51</td><td>Armazenamento simples em arquivos .txt no formato chave=valor.</td></tr><tr><td><a href="#arq-src-notch-sdk-notchtheme-cs"><code>src/Notch.Sdk/NotchTheme.cs</code></a></td><td class="num">80</td><td>Cores, fontes e glifos (ícones) do visual do notch.</td></tr><tr><td><a href="#arq-src-notch-sdk-ui-cs"><code>src/Notch.Sdk/Ui.cs</code></a></td><td class="num">237</td><td>Componentes prontos: textos, botões em pílula, chips, interruptor, barra de progresso, campo de texto.</td></tr><tr><td><a href="#arq-src-notch-app-app-xaml"><code>src/Notch.App/App.xaml</code></a></td><td class="num">15</td><td>Definição do aplicativo WPF e estilo das dicas (tooltips).</td></tr><tr><td><a href="#arq-src-notch-app-app-xaml-cs"><code>src/Notch.App/App.xaml.cs</code></a></td><td class="num">50</td><td>Início do app: instância única, idioma pt-BR, tratamento global de erros.</td></tr><tr><td><a href="#arq-src-notch-app-notchwindow-cs"><code>src/Notch.App/NotchWindow.cs</code></a></td><td class="num">899</td><td>O coração do app: a pílula, os três estados, animações, alertas, páginas e arrastar-e-soltar.</td></tr><tr><td><a href="#arq-src-notch-app-notchwindow-tray-cs"><code>src/Notch.App/NotchWindow.Tray.cs</code></a></td><td class="num">201</td><td>Ícone da bandeja e menu escuro de configurações.</td></tr><tr><td><a href="#arq-src-notch-app-core-paths-cs"><code>src/Notch.App/Core/Paths.cs</code></a></td><td class="num">33</td><td>Pastas de dados, plugins e prateleira; arquivo de log.</td></tr><tr><td><a href="#arq-src-notch-app-core-autostart-cs"><code>src/Notch.App/Core/Autostart.cs</code></a></td><td class="num">27</td><td>Liga/desliga o &quot;Iniciar com o Windows&quot; (registro do usuário).</td></tr><tr><td><a href="#arq-src-notch-app-core-native-cs"><code>src/Notch.App/Core/Native.cs</code></a></td><td class="num">65</td><td>Chamadas diretas à API do Windows (janela em primeiro plano, Caps Lock, idioma, sempre no topo).</td></tr><tr><td><a href="#arq-src-notch-app-core-pluginloader-cs"><code>src/Notch.App/Core/PluginLoader.cs</code></a></td><td class="num">63</td><td>Carregador de plugins: lê as DLLs da pasta de plugins em contextos isolados.</td></tr><tr><td><a href="#arq-src-notch-app-controls-ringprogress-cs"><code>src/Notch.App/Controls/RingProgress.cs</code></a></td><td class="num">60</td><td>Anel de progresso (água, pomodoro).</td></tr><tr><td><a href="#arq-src-notch-app-controls-audiobars-cs"><code>src/Notch.App/Controls/AudioBars.cs</code></a></td><td class="num">85</td><td>Barrinhas de áudio que reagem ao volume real do som.</td></tr><tr><td><a href="#arq-src-notch-app-controls-batteryicon-cs"><code>src/Notch.App/Controls/BatteryIcon.cs</code></a></td><td class="num">61</td><td>Anel de bateria com raio ao carregar.</td></tr><tr><td><a href="#arq-src-notch-app-controls-mascot-cs"><code>src/Notch.App/Controls/Mascot.cs</code></a></td><td class="num">74</td><td>Mascote: olhinhos que piscam e olham para os lados.</td></tr><tr><td><a href="#arq-src-notch-app-services-mediaservice-cs"><code>src/Notch.App/Services/MediaService.cs</code></a></td><td class="num">169</td><td>Música tocando em qualquer player, via controles de mídia do Windows.</td></tr><tr><td><a href="#arq-src-notch-app-services-lyricsservice-cs"><code>src/Notch.App/Services/LyricsService.cs</code></a></td><td class="num">111</td><td>Busca de letras sincronizadas no LRCLIB.</td></tr><tr><td><a href="#arq-src-notch-app-services-audioservice-cs"><code>src/Notch.App/Services/AudioService.cs</code></a></td><td class="num">156</td><td>Volume do Windows e nível do som (Core Audio, via NAudio).</td></tr><tr><td><a href="#arq-src-notch-app-services-systemstatusservice-cs"><code>src/Notch.App/Services/SystemStatusService.cs</code></a></td><td class="num">266</td><td>Bateria, carregador, rede, Bluetooth, Caps Lock, idioma do teclado e brilho.</td></tr><tr><td><a href="#arq-src-notch-app-services-windowsnotificationservice-cs"><code>src/Notch.App/Services/WindowsNotificationService.cs</code></a></td><td class="num">112</td><td>Espelho das notificações do Windows (opcional).</td></tr><tr><td><a href="#arq-src-notch-app-modules-modulebase-cs"><code>src/Notch.App/Modules/ModuleBase.cs</code></a></td><td class="num">36</td><td>Base das ferramentas internas (timer que só roda com a página visível).</td></tr><tr><td><a href="#arq-src-notch-app-modules-musicmodule-cs"><code>src/Notch.App/Modules/MusicModule.cs</code></a></td><td class="num">126</td><td>Página &quot;Tocando Agora&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-lyricsmodule-cs"><code>src/Notch.App/Modules/LyricsModule.cs</code></a></td><td class="num">138</td><td>Página &quot;Letra da Música&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-pomodoromodule-cs"><code>src/Notch.App/Modules/PomodoroModule.cs</code></a></td><td class="num">210</td><td>Página &quot;Timer Pomodoro&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-watermodule-cs"><code>src/Notch.App/Modules/WaterModule.cs</code></a></td><td class="num">331</td><td>Página &quot;Lembrete de Água&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-todomodule-cs"><code>src/Notch.App/Modules/TodoModule.cs</code></a></td><td class="num">267</td><td>Página &quot;Lista de Tarefas&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-shelfmodule-cs"><code>src/Notch.App/Modules/ShelfModule.cs</code></a></td><td class="num">283</td><td>Página &quot;Prateleira de Arquivos&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-sitemodule-cs"><code>src/Notch.App/Modules/SiteModule.cs</code></a></td><td class="num">344</td><td>Página &quot;Novidades do Site&quot; (conexão com o seu site).</td></tr><tr><td><a href="#arq-plugins-exemplo-cotacao-exemplo-cotacao-csproj"><code>plugins/Exemplo.Cotacao/Exemplo.Cotacao.csproj</code></a></td><td class="num">20</td><td>Projeto do plugin: referencia o Notch.Sdk sem copiá-lo.</td></tr><tr><td><a href="#arq-plugins-exemplo-cotacao-cotacaomodule-cs"><code>plugins/Exemplo.Cotacao/CotacaoModule.cs</code></a></td><td class="num">110</td><td>Página &quot;Cotação do Dia&quot;: dólar, euro e bitcoin pela AwesomeAPI.</td></tr></tbody></table></div>
 <h3 class="grupo">Configuração do projeto</h3>
 <details class="arquivo" id="arq-directory-build-props"><summary><span class="caminho">Directory.Build.props</span><span class="meta">18 linhas</span><span class="desc">Configurações comuns a todos os projetos: .NET 10, WPF, versão e pasta de compilação fora do OneDrive.</span></summary><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code class="language-xml">&lt;Project&gt;
   &lt;!-- bin/obj ficam fora do OneDrive para não sincronizar arquivos temporários de compilação --&gt;
@@ -1412,7 +1413,7 @@ public partial class App : Application
     }
 }
 </code></pre></div></details>
-<details class="arquivo" id="arq-src-notch-app-notchwindow-cs"><summary><span class="caminho">src/Notch.App/NotchWindow.cs</span><span class="meta">875 linhas</span><span class="desc">O coração do app: a pílula, os três estados, animações, alertas, páginas e arrastar-e-soltar.</span></summary><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code class="language-csharp">using System.Globalization;
+<details class="arquivo" id="arq-src-notch-app-notchwindow-cs"><summary><span class="caminho">src/Notch.App/NotchWindow.cs</span><span class="meta">899 linhas</span><span class="desc">O coração do app: a pílula, os três estados, animações, alertas, páginas e arrastar-e-soltar.</span></summary><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code class="language-csharp">using System.Globalization;
 using System.Net.Http;
 using System.Windows;
 using System.Windows.Controls;
@@ -1490,7 +1491,8 @@ internal sealed partial class NotchWindow : Window, INotchHost
     private readonly BatteryIcon _compactBattery = new();
     private readonly Border _compactArt = new() { Width = 20, Height = 20, CornerRadius = new CornerRadius(5) };
     private readonly TextBlock _compactTimerIcon = Ui.Icon(Glyphs.Timer, 13);
-    private readonly TextBlock _compactMicOff = Ui.Icon(Glyphs.MicOff, 14, NotchTheme.Red);
+    private readonly TextBlock _compactMicIcon = Ui.Icon(Glyphs.Microphone, 13);
+    private readonly Border _compactMic = new() { Width = 24, Height = 24, CornerRadius = new CornerRadius(12), Background = Brushes.Transparent, Cursor = Cursors.Hand };
     private Border _micButton = null!;
     private bool? _lastMicMuted;
     private readonly AudioBars _compactBars = new();
@@ -1574,15 +1576,29 @@ internal sealed partial class NotchWindow : Window, INotchHost
         _compactLayer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(28) });
         _compactLayer.ColumnDefinitions.Add(new ColumnDefinition());
         _compactLayer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(28) });
-        _compactLayer.Margin = new Thickness(12, 0, 12, 0);
+        _compactLayer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
+        _compactLayer.Margin = new Thickness(12, 0, 8, 0);
 
         var left = new Grid { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
         left.Children.Add(_compactBattery);
         left.Children.Add(_compactArt);
         left.Children.Add(_compactTimerIcon);
-        left.Children.Add(_compactMicOff);
-        _compactMicOff.ToolTip = &quot;Microfone mudo&quot;;
         _compactLayer.Children.Add(left);
+
+        // microfone sempre visível na pílula: clique muta/libera sem abrir o painel
+        _compactMic.Child = _compactMicIcon;
+        _compactMic.HorizontalAlignment = HorizontalAlignment.Right;
+        _compactMic.VerticalAlignment = VerticalAlignment.Center;
+        _compactMic.MouseEnter += (_, _) =&gt; { _hoverTimer.Stop(); _compactMic.Background = NotchTheme.SurfaceHover; };
+        _compactMic.MouseLeave += (_, _) =&gt;
+        {
+            _compactMic.Background = Brushes.Transparent;
+            if (_state == State.Compact &amp;&amp; _shell.IsMouseOver) _hoverTimer.Start();
+        };
+        _compactMic.MouseLeftButtonDown += (_, e) =&gt; e.Handled = true;
+        _compactMic.MouseLeftButtonUp += (_, e) =&gt; { ToggleMic(showAlert: false); e.Handled = true; };
+        Grid.SetColumn(_compactMic, 3);
+        _compactLayer.Children.Add(_compactMic);
 
         _compactTime.HorizontalAlignment = HorizontalAlignment.Center;
         Grid.SetColumn(_compactTime, 1);
@@ -1699,7 +1715,7 @@ internal sealed partial class NotchWindow : Window, INotchHost
         {
             _leaveTimer.Stop();
             if (_state == State.Alert) _alertTimer.Stop();       // não some enquanto o mouse está em cima
-            else if (_state == State.Compact) _hoverTimer.Start();
+            else if (_state == State.Compact &amp;&amp; !_compactMic.IsMouseOver) _hoverTimer.Start();
         };
         _shell.MouseLeave += (_, _) =&gt;
         {
@@ -1716,7 +1732,7 @@ internal sealed partial class NotchWindow : Window, INotchHost
         _hoverTimer.Tick += (_, _) =&gt;
         {
             _hoverTimer.Stop();
-            if (_shell.IsMouseOver &amp;&amp; _state == State.Compact) Expand();
+            if (_shell.IsMouseOver &amp;&amp; !_compactMic.IsMouseOver &amp;&amp; _state == State.Compact) Expand();
         };
         _leaveTimer.Tick += (_, _) =&gt;
         {
@@ -1769,7 +1785,7 @@ internal sealed partial class NotchWindow : Window, INotchHost
             _leaveTimer.Start();
         };
 
-        _clockTimer.Tick += (_, _) =&gt; { UpdateClock(); UpdateCompact(); };
+        _clockTimer.Tick += (_, _) =&gt; { UpdateClock(); UpdateCompact(); _audio.SyncMic(); };
         _clockTimer.Start();
         _guardTimer.Tick += (_, _) =&gt; GuardTick();
         _guardTimer.Start();
@@ -1829,27 +1845,39 @@ internal sealed partial class NotchWindow : Window, INotchHost
 
     // ------------------------------------------------------------------ microfone
 
-    private void ToggleMic()
+    private bool _quietMicChange;
+
+    /// &lt;param name=&quot;showAlert&quot;&gt;false quando o clique foi no ícone da pílula: o próprio ícone já mostra o estado.&lt;/param&gt;
+    private void ToggleMic(bool showAlert = true)
     {
         if (!_audio.HasMic)
         {
             ShowAlert(new NotchAlert(&quot;Microfone&quot;, &quot;Nenhum microfone encontrado&quot;) { Glyph = Glyphs.MicOff, Accent = NotchTheme.TextDim, Key = &quot;mic&quot; });
             return;
         }
+        _quietMicChange = !showAlert;
         _audio.ToggleMic();
+        _quietMicChange = false;
     }
 
     private void OnMicChanged(bool muted)
     {
-        var icon = (TextBlock)_micButton.Child;
-        icon.Text = muted ? Glyphs.MicOff : Glyphs.Microphone;
-        icon.Foreground = !_audio.HasMic ? NotchTheme.TextFaint : muted ? NotchTheme.Red : NotchTheme.Text;
-        _micButton.ToolTip = !_audio.HasMic ? &quot;Nenhum microfone conectado&quot;
-            : muted ? &quot;Microfone mudo · clique para ativar&quot; : &quot;Microfone ativo · clique para mutar&quot;;
+        // verde = ligado (estão te ouvindo) · vermelho cortado = mudo · cinza = sem microfone
+        var glyph = !_audio.HasMic || muted ? Glyphs.MicOff : Glyphs.Microphone;
+        var color = !_audio.HasMic ? NotchTheme.TextDim : muted ? NotchTheme.Red : NotchTheme.Green;
+        var tip = !_audio.HasMic ? &quot;Nenhum microfone conectado&quot;
+            : muted ? &quot;Microfone MUDO · clique para ativar&quot; : &quot;Microfone LIGADO · clique para mutar&quot;;
+        foreach (var icon in new[] { (TextBlock)_micButton.Child, _compactMicIcon })
+        {
+            icon.Text = glyph;
+            icon.Foreground = color;
+        }
+        _micButton.ToolTip = tip;
+        _compactMic.ToolTip = tip;
 
         // alerta só quando o estado muda de verdade (não ao trocar de fone, por exemplo)
         // (com o painel aberto, alertas com Key são ignorados: o próprio botão já mostra o estado)
-        if (_lastMicMuted.HasValue &amp;&amp; _lastMicMuted != muted)
+        if (_lastMicMuted.HasValue &amp;&amp; _lastMicMuted != muted &amp;&amp; !_quietMicChange)
         {
             ShowAlert(new NotchAlert(muted ? &quot;Microfone mudo&quot; : &quot;Microfone ativado&quot;, muted ? &quot;Ninguém está te ouvindo&quot; : &quot;Você está sendo ouvido&quot;)
             {
@@ -1865,7 +1893,8 @@ internal sealed partial class NotchWindow : Window, INotchHost
 
     // ------------------------------------------------------------------ estados
 
-    private (double w, double h) CompactSize =&gt; Setting(&quot;minimal&quot;, false) ? (130, 26) : (196, 32);
+    // inclui o espaço do ícone de microfone, que fica sempre visível
+    private (double w, double h) CompactSize =&gt; Setting(&quot;minimal&quot;, false) ? (150, 26) : (224, 32);
 
     private void SetState(State state, bool animate = true)
     {
@@ -2192,15 +2221,11 @@ internal sealed partial class NotchWindow : Window, INotchHost
         _compactTimerIcon.Foreground = _pomodoro.ModeBrush;
         _compactTimerIcon.Text = _pomodoro.Mode == PomodoroMode.Foco ? Glyphs.Timer : Glyphs.Coffee;
 
-        // microfone mudo aparece até no modo minimalista: é o aviso mais importante
-        var micOff = _audio.HasMic &amp;&amp; _audio.MicMuted &amp;&amp; !timer;
-        _compactMicOff.Visibility = micOff ? Visibility.Visible : Visibility.Collapsed;
-
-        var showArt = !minimal &amp;&amp; !timer &amp;&amp; !micOff &amp;&amp; playing &amp;&amp; _media.Art != null;
+        var showArt = !minimal &amp;&amp; !timer &amp;&amp; playing &amp;&amp; _media.Art != null;
         _compactArt.Visibility = showArt ? Visibility.Visible : Visibility.Collapsed;
         if (showArt) _compactArt.Background = new ImageBrush(_media.Art) { Stretch = Stretch.UniformToFill };
 
-        _compactBattery.Visibility = !minimal &amp;&amp; !timer &amp;&amp; !micOff &amp;&amp; !showArt &amp;&amp; _status.HasBattery ? Visibility.Visible : Visibility.Collapsed;
+        _compactBattery.Visibility = !minimal &amp;&amp; !timer &amp;&amp; !showArt &amp;&amp; _status.HasBattery ? Visibility.Visible : Visibility.Collapsed;
 
         var mascot = Setting(&quot;mascot&quot;, true);
         _compactBars.IsPlaying = playing;
@@ -3239,7 +3264,7 @@ internal sealed partial class LyricsService(HttpClient http)
     private static partial Regex TimeTag();
 }
 </code></pre></div></details>
-<details class="arquivo" id="arq-src-notch-app-services-audioservice-cs"><summary><span class="caminho">src/Notch.App/Services/AudioService.cs</span><span class="meta">130 linhas</span><span class="desc">Volume do Windows e nível do som (Core Audio, via NAudio).</span></summary><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code class="language-csharp">using System.Windows.Threading;
+<details class="arquivo" id="arq-src-notch-app-services-audioservice-cs"><summary><span class="caminho">src/Notch.App/Services/AudioService.cs</span><span class="meta">156 linhas</span><span class="desc">Volume do Windows e nível do som (Core Audio, via NAudio).</span></summary><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code class="language-csharp">using System.Windows.Threading;
 using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
 
@@ -3300,6 +3325,32 @@ internal sealed class AudioService : IMMNotificationClient
             MicMuted = data.Muted;
             MicChanged?.Invoke(MicMuted);
         });
+    }
+
+    /// &lt;summary&gt;
+    /// Confere o estado real no Windows. Alguns headsets (ex.: Astro A50) nem sempre avisam
+    /// as mudanças por evento; chamada a cada segundo, garante que o indicador nunca minta.
+    /// &lt;/summary&gt;
+    public void SyncMic()
+    {
+        try
+        {
+            var current = _enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Communications);
+            if (_mic == null || current.ID != _mic.ID)
+            {
+                AttachMic(); // trocou o microfone padrão ou um foi conectado
+                return;
+            }
+            var muted = _mic.AudioEndpointVolume.Mute;
+            if (muted == MicMuted) return;
+            MicMuted = muted;
+            MicChanged?.Invoke(muted);
+        }
+        catch (Exception)
+        {
+            if (_mic == null) return;
+            AttachMic(); // microfone removido
+        }
     }
 
     /// &lt;summary&gt;Muta ou libera o microfone. Retorna o novo estado (true = mudo).&lt;/summary&gt;

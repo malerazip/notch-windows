@@ -76,7 +76,8 @@ internal sealed partial class NotchWindow : Window, INotchHost
     private readonly BatteryIcon _compactBattery = new();
     private readonly Border _compactArt = new() { Width = 20, Height = 20, CornerRadius = new CornerRadius(5) };
     private readonly TextBlock _compactTimerIcon = Ui.Icon(Glyphs.Timer, 13);
-    private readonly TextBlock _compactMicOff = Ui.Icon(Glyphs.MicOff, 14, NotchTheme.Red);
+    private readonly TextBlock _compactMicIcon = Ui.Icon(Glyphs.Microphone, 13);
+    private readonly Border _compactMic = new() { Width = 24, Height = 24, CornerRadius = new CornerRadius(12), Background = Brushes.Transparent, Cursor = Cursors.Hand };
     private Border _micButton = null!;
     private bool? _lastMicMuted;
     private readonly AudioBars _compactBars = new();
@@ -160,15 +161,29 @@ internal sealed partial class NotchWindow : Window, INotchHost
         _compactLayer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(28) });
         _compactLayer.ColumnDefinitions.Add(new ColumnDefinition());
         _compactLayer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(28) });
-        _compactLayer.Margin = new Thickness(12, 0, 12, 0);
+        _compactLayer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
+        _compactLayer.Margin = new Thickness(12, 0, 8, 0);
 
         var left = new Grid { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
         left.Children.Add(_compactBattery);
         left.Children.Add(_compactArt);
         left.Children.Add(_compactTimerIcon);
-        left.Children.Add(_compactMicOff);
-        _compactMicOff.ToolTip = "Microfone mudo";
         _compactLayer.Children.Add(left);
+
+        // microfone sempre visível na pílula: clique muta/libera sem abrir o painel
+        _compactMic.Child = _compactMicIcon;
+        _compactMic.HorizontalAlignment = HorizontalAlignment.Right;
+        _compactMic.VerticalAlignment = VerticalAlignment.Center;
+        _compactMic.MouseEnter += (_, _) => { _hoverTimer.Stop(); _compactMic.Background = NotchTheme.SurfaceHover; };
+        _compactMic.MouseLeave += (_, _) =>
+        {
+            _compactMic.Background = Brushes.Transparent;
+            if (_state == State.Compact && _shell.IsMouseOver) _hoverTimer.Start();
+        };
+        _compactMic.MouseLeftButtonDown += (_, e) => e.Handled = true;
+        _compactMic.MouseLeftButtonUp += (_, e) => { ToggleMic(showAlert: false); e.Handled = true; };
+        Grid.SetColumn(_compactMic, 3);
+        _compactLayer.Children.Add(_compactMic);
 
         _compactTime.HorizontalAlignment = HorizontalAlignment.Center;
         Grid.SetColumn(_compactTime, 1);
@@ -285,7 +300,7 @@ internal sealed partial class NotchWindow : Window, INotchHost
         {
             _leaveTimer.Stop();
             if (_state == State.Alert) _alertTimer.Stop();       // não some enquanto o mouse está em cima
-            else if (_state == State.Compact) _hoverTimer.Start();
+            else if (_state == State.Compact && !_compactMic.IsMouseOver) _hoverTimer.Start();
         };
         _shell.MouseLeave += (_, _) =>
         {
@@ -302,7 +317,7 @@ internal sealed partial class NotchWindow : Window, INotchHost
         _hoverTimer.Tick += (_, _) =>
         {
             _hoverTimer.Stop();
-            if (_shell.IsMouseOver && _state == State.Compact) Expand();
+            if (_shell.IsMouseOver && !_compactMic.IsMouseOver && _state == State.Compact) Expand();
         };
         _leaveTimer.Tick += (_, _) =>
         {
@@ -355,7 +370,7 @@ internal sealed partial class NotchWindow : Window, INotchHost
             _leaveTimer.Start();
         };
 
-        _clockTimer.Tick += (_, _) => { UpdateClock(); UpdateCompact(); };
+        _clockTimer.Tick += (_, _) => { UpdateClock(); UpdateCompact(); _audio.SyncMic(); };
         _clockTimer.Start();
         _guardTimer.Tick += (_, _) => GuardTick();
         _guardTimer.Start();
@@ -415,27 +430,39 @@ internal sealed partial class NotchWindow : Window, INotchHost
 
     // ------------------------------------------------------------------ microfone
 
-    private void ToggleMic()
+    private bool _quietMicChange;
+
+    /// <param name="showAlert">false quando o clique foi no ícone da pílula: o próprio ícone já mostra o estado.</param>
+    private void ToggleMic(bool showAlert = true)
     {
         if (!_audio.HasMic)
         {
             ShowAlert(new NotchAlert("Microfone", "Nenhum microfone encontrado") { Glyph = Glyphs.MicOff, Accent = NotchTheme.TextDim, Key = "mic" });
             return;
         }
+        _quietMicChange = !showAlert;
         _audio.ToggleMic();
+        _quietMicChange = false;
     }
 
     private void OnMicChanged(bool muted)
     {
-        var icon = (TextBlock)_micButton.Child;
-        icon.Text = muted ? Glyphs.MicOff : Glyphs.Microphone;
-        icon.Foreground = !_audio.HasMic ? NotchTheme.TextFaint : muted ? NotchTheme.Red : NotchTheme.Text;
-        _micButton.ToolTip = !_audio.HasMic ? "Nenhum microfone conectado"
-            : muted ? "Microfone mudo · clique para ativar" : "Microfone ativo · clique para mutar";
+        // verde = ligado (estão te ouvindo) · vermelho cortado = mudo · cinza = sem microfone
+        var glyph = !_audio.HasMic || muted ? Glyphs.MicOff : Glyphs.Microphone;
+        var color = !_audio.HasMic ? NotchTheme.TextDim : muted ? NotchTheme.Red : NotchTheme.Green;
+        var tip = !_audio.HasMic ? "Nenhum microfone conectado"
+            : muted ? "Microfone MUDO · clique para ativar" : "Microfone LIGADO · clique para mutar";
+        foreach (var icon in new[] { (TextBlock)_micButton.Child, _compactMicIcon })
+        {
+            icon.Text = glyph;
+            icon.Foreground = color;
+        }
+        _micButton.ToolTip = tip;
+        _compactMic.ToolTip = tip;
 
         // alerta só quando o estado muda de verdade (não ao trocar de fone, por exemplo)
         // (com o painel aberto, alertas com Key são ignorados: o próprio botão já mostra o estado)
-        if (_lastMicMuted.HasValue && _lastMicMuted != muted)
+        if (_lastMicMuted.HasValue && _lastMicMuted != muted && !_quietMicChange)
         {
             ShowAlert(new NotchAlert(muted ? "Microfone mudo" : "Microfone ativado", muted ? "Ninguém está te ouvindo" : "Você está sendo ouvido")
             {
@@ -451,7 +478,8 @@ internal sealed partial class NotchWindow : Window, INotchHost
 
     // ------------------------------------------------------------------ estados
 
-    private (double w, double h) CompactSize => Setting("minimal", false) ? (130, 26) : (196, 32);
+    // inclui o espaço do ícone de microfone, que fica sempre visível
+    private (double w, double h) CompactSize => Setting("minimal", false) ? (150, 26) : (224, 32);
 
     private void SetState(State state, bool animate = true)
     {
@@ -778,15 +806,11 @@ internal sealed partial class NotchWindow : Window, INotchHost
         _compactTimerIcon.Foreground = _pomodoro.ModeBrush;
         _compactTimerIcon.Text = _pomodoro.Mode == PomodoroMode.Foco ? Glyphs.Timer : Glyphs.Coffee;
 
-        // microfone mudo aparece até no modo minimalista: é o aviso mais importante
-        var micOff = _audio.HasMic && _audio.MicMuted && !timer;
-        _compactMicOff.Visibility = micOff ? Visibility.Visible : Visibility.Collapsed;
-
-        var showArt = !minimal && !timer && !micOff && playing && _media.Art != null;
+        var showArt = !minimal && !timer && playing && _media.Art != null;
         _compactArt.Visibility = showArt ? Visibility.Visible : Visibility.Collapsed;
         if (showArt) _compactArt.Background = new ImageBrush(_media.Art) { Stretch = Stretch.UniformToFill };
 
-        _compactBattery.Visibility = !minimal && !timer && !micOff && !showArt && _status.HasBattery ? Visibility.Visible : Visibility.Collapsed;
+        _compactBattery.Visibility = !minimal && !timer && !showArt && _status.HasBattery ? Visibility.Visible : Visibility.Collapsed;
 
         var mascot = Setting("mascot", true);
         _compactBars.IsPlaying = playing;

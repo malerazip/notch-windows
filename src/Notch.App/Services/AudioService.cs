@@ -61,6 +61,32 @@ internal sealed class AudioService : IMMNotificationClient
         });
     }
 
+    /// <summary>
+    /// Confere o estado real no Windows. Alguns headsets (ex.: Astro A50) nem sempre avisam
+    /// as mudanças por evento; chamada a cada segundo, garante que o indicador nunca minta.
+    /// </summary>
+    public void SyncMic()
+    {
+        try
+        {
+            var current = _enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Communications);
+            if (_mic == null || current.ID != _mic.ID)
+            {
+                AttachMic(); // trocou o microfone padrão ou um foi conectado
+                return;
+            }
+            var muted = _mic.AudioEndpointVolume.Mute;
+            if (muted == MicMuted) return;
+            MicMuted = muted;
+            MicChanged?.Invoke(muted);
+        }
+        catch (Exception)
+        {
+            if (_mic == null) return;
+            AttachMic(); // microfone removido
+        }
+    }
+
     /// <summary>Muta ou libera o microfone. Retorna o novo estado (true = mudo).</summary>
     public bool ToggleMic()
     {
