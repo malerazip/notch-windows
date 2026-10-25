@@ -347,7 +347,7 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <!-- =============================================================== -->
 <section id="visao">
 <h2>Visão geral</h2>
-<p>O <b>Projeto Notch</b> é uma pílula preta que fica no centro do topo da tela. Em repouso ela mostra a hora, a bateria e o que está tocando. Ao passar o mouse, ela cresce e vira um painel com páginas de ferramentas: música, letra sincronizada, Pomodoro, lembrete de água, tarefas, prateleira de arquivos e novidades do seu site. Quando algo acontece (bateria fraca, hora de beber água, lançamento no site), ela se estica e mostra um <b>alerta</b> com botões.</p>
+<p>O <b>Projeto Notch</b> é uma pílula preta que fica no centro do topo da tela. Com o <b>notch fechado</b>, ela mostra a hora, a bateria, o microfone e o que está tocando. Ao passar o mouse, o <b>notch abre</b> e vira um painel com páginas de ferramentas: música, letra sincronizada, Pomodoro, lembrete de água, tarefas, prateleira de arquivos e novidades do seu site. Quando algo acontece (bateria fraca, hora de beber água, lançamento no site), ela se estica e mostra um <b>alerta</b> com botões.</p>
 <p>Ele nasceu como substituto do <b>Nusa</b>, um app parecido em inglês e de código fechado. O autor do Nusa abandonou o projeto e não dava para acrescentar funções nele. O Projeto Notch refaz tudo o que o Nusa fazia, em português, e foi construído desde o início para <b>aceitar ferramentas novas</b> (plugins) e se <b>conectar ao seu site</b>.</p>
 <div class="tabela"><table>
 <thead><tr><th>Item</th><th>Escolha</th><th>Por quê</th></tr></thead>
@@ -364,9 +364,9 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <section id="galeria">
 <h2>Galeria</h2>
 <p class="sub">Capturas reais, tiradas durante os testes no seu computador.</p>
-<h3>A pílula (estado compacto)</h3>
+<h3>Notch fechado (a pílula)</h3>
 <div class="lado">{{FIG_PILULA_MUSICA}}{{FIG_PILULA_POMODORO}}</div>
-<h3>As páginas (estado expandido)</h3>
+<h3>Notch aberto (as ferramentas)</h3>
 <div class="galeria">
 {{FIG_PAGINA_MUSICA}}{{FIG_PAGINA_LETRA}}{{FIG_PAGINA_POMODORO}}{{FIG_PAGINA_AGUA}}
 {{FIG_PAGINA_TAREFAS}}{{FIG_PAGINA_PRATELEIRA}}{{FIG_PAGINA_SITE}}{{FIG_PAGINA_COTACAO_PLUGIN}}
@@ -421,13 +421,14 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <!-- =============================================================== -->
 <section id="uso">
 <h2>Como usar</h2>
+<p><b>Notch fechado</b>: a pílula parada no topo (hora, bateria, música, microfone). <b>Notch aberto</b>: o painel com as ferramentas, que aparece ao passar o mouse ou clicar.</p>
 <div class="tabela"><table>
 <thead><tr><th>Ação</th><th>Resultado</th></tr></thead>
 <tbody>
-<tr><td>Passar o mouse sobre a pílula</td><td>Abre o painel (após ~0,15 s, para evitar aberturas acidentais).</td></tr>
-<tr><td>Tirar o mouse do painel</td><td>Fecha após ~0,45 s. Se você estiver digitando, só fecha ao clicar fora.</td></tr>
-<tr><td>Clique na pílula</td><td>Abre o painel na hora.</td></tr>
-<tr><td>Clique no microfone da pílula</td><td>Muta/libera o microfone sem abrir o painel (verde = ligado, vermelho = mudo).</td></tr>
+<tr><td>Passar o mouse sobre o notch fechado</td><td>Abre o notch (após ~0,15 s, para evitar aberturas acidentais).</td></tr>
+<tr><td>Tirar o mouse do notch aberto</td><td>Fecha após ~0,45 s. Se você estiver digitando, só fecha ao clicar fora.</td></tr>
+<tr><td>Clique no notch fechado</td><td>Abre o notch na hora.</td></tr>
+<tr><td>Clique no microfone do notch fechado</td><td>Muta/libera o microfone sem abrir o notch (verde = ligado, vermelho = mudo).</td></tr>
 <tr><td>Setas laterais, pontinhos ou roda do mouse</td><td>Trocam de página. A última página aberta é lembrada.</td></tr>
 <tr><td>Clique direito no notch</td><td>Abre o menu de configurações.</td></tr>
 <tr><td>Clique no ícone da bandeja (perto do relógio)</td><td>Esquerdo abre o painel; direito abre o menu.</td></tr>
@@ -537,7 +538,7 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <h3>Fluxo de inicialização</h3>
 <ol>
 <li><code>App.OnStartup</code> garante uma única instância (mutex), define o idioma pt-BR, cria as pastas de dados e instala o tratamento global de erros.</li>
-<li><code>NotchWindow</code> cria os serviços, monta a pílula e as três camadas (compacta, alerta, expandida).</li>
+<li><code>NotchWindow</code> cria os serviços, monta a pílula e as três camadas (notch fechado, alerta, notch aberto).</li>
 <li><code>LoadModules</code> registra as 7 ferramentas internas, carrega os plugins da pasta e chama <code>Start(host)</code> em cada uma. Se uma falhar, ela é removida e o erro vai para o log.</li>
 <li>Ao carregar a janela: inicia o monitor do sistema, conecta aos controles de mídia, liga as notificações (se configurado), cria o ícone da bandeja e, na primeira execução, mostra a mensagem de boas-vindas e ativa "Iniciar com o Windows".</li>
 </ol>
@@ -548,18 +549,19 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <h2>A janela do notch</h2>
 <p>A janela é transparente, sem bordas, sempre no topo e invisível na barra de tarefas e no Alt+Tab. Dentro dela há uma única <code>Border</code> preta (a "concha") que muda de tamanho. Como a janela usa transparência por pixel, <b>as áreas transparentes deixam o clique passar</b> para as janelas de baixo: só a pílula é clicável.</p>
 <h3>Os três estados</h3>
+<p>Nesta documentação: <b>notch fechado</b> (ou compactado) é a pílula pequena parada no topo, funcionando só com os ícones; <b>notch aberto</b> (ou expandido) é quando ele abre o painel com as ferramentas; e <b>alerta</b> é quando a pílula se estica por alguns segundos para avisar algo. No código, eles se chamam <code>State.Compact</code>, <code>State.Expanded</code> e <code>State.Alert</code>.</p>
 <div class="diagrama">
-<svg viewBox="0 0 900 260" role="img" aria-label="Diagrama de estados: compacto, alerta e expandido">
+<svg viewBox="0 0 900 260" role="img" aria-label="Diagrama de estados: notch fechado, alerta e notch aberto">
 <defs>
 <marker id="ponta2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#3ea6ff"/></marker>
 </defs>
 <rect class="caixa preta" x="40" y="80" width="190" height="34" rx="17"/>
-<text class="branco" x="135" y="102" text-anchor="middle" font-weight="700">Compacto · 196×32</text>
+<text class="branco" x="135" y="102" text-anchor="middle" font-weight="700">Notch fechado · 224×32</text>
 <rect class="caixa preta" x="355" y="20" width="200" height="56" rx="22"/>
 <text class="branco" x="455" y="45" text-anchor="middle" font-weight="700">Alerta · 370×64</text>
 <text class="branco" x="455" y="63" text-anchor="middle" font-size="11">(430 com botões)</text>
 <rect class="caixa preta" x="655" y="70" width="210" height="120" rx="28"/>
-<text class="branco" x="760" y="126" text-anchor="middle" font-weight="700">Expandido · 450×178</text>
+<text class="branco" x="760" y="126" text-anchor="middle" font-weight="700">Notch aberto · 450×178</text>
 <text class="branco" x="760" y="146" text-anchor="middle" font-size="11">cabeçalho · página · pontos</text>
 <path d="M150 80 C 200 40, 290 34, 352 40" stroke="#3ea6ff" stroke-width="1.5" fill="none" marker-end="url(#ponta2)"/>
 <text class="rot" x="170" y="38">alerta chega</text>
@@ -580,7 +582,7 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <li><b>Tela cheia:</b> a cada 1,5 s, o app verifica se a janela em primeiro plano ocupa a tela toda. Se ocupar, o notch desaparece com um esmaecimento e para de receber cliques.</li>
 <li><b>Sempre por cima:</b> no mesmo ciclo, o app reforça a posição "sempre no topo", já que a barra de tarefas às vezes a toma.</li>
 <li><b>Páginas:</b> as ferramentas habilitadas são ordenadas pelo campo <code>Order</code>. Cada página é criada só na primeira vez que é aberta e depois reaproveitada. A troca desliza 28 px na direção da navegação.</li>
-<li><b>Arrastar e soltar:</b> quando arquivos são arrastados sobre a pílula, ela expande direto na Prateleira; ao soltar, os arquivos vão para <code>ShelfModule.Accept</code>.</li>
+<li><b>Arrastar e soltar:</b> quando arquivos são arrastados sobre a pílula, o notch abre direto na Prateleira; ao soltar, os arquivos vão para <code>ShelfModule.Accept</code>.</li>
 </ul>
 </section>
 

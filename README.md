@@ -26,6 +26,7 @@ Caps Lock, idioma do teclado, internet, Bluetooth e, se você ligar, as notifica
 
 ## Como usar
 
+- **Notch fechado** (ou compactado): a pílula parada no topo. **Notch aberto** (ou expandido): o painel com as ferramentas.
 - **Passar o mouse** sobre a pílula abre o painel. **Clique direito** abre o menu.
 - Para trocar de página, use as **setas**, os **pontinhos** ou a **roda do mouse**.
 - Ao **arrastar arquivos** para o notch, ele abre direto na Prateleira.
