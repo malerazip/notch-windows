@@ -135,6 +135,11 @@ internal sealed partial class NotchWindow
 
         _menu.Items.Add(new Forms.ToolStripSeparator());
         _menu.Items.Add(Check("Abrir ao passar o mouse", Setting("hover", false), on => SaveSetting("hover", on)));
+        _menu.Items.Add(Check("Desviar das abas do navegador", Setting("dodge", true), on =>
+        {
+            SaveSetting("dodge", on);
+            if (!on && Dodged) ReturnToCenter();
+        }));
         _menu.Items.Add(Check("Modo minimalista", Setting("minimal", false), on =>
         {
             SaveSetting("minimal", on);

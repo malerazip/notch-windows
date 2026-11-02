@@ -42,6 +42,9 @@ Caps Lock, idioma do teclado, internet, Bluetooth e, se você ligar, as notifica
   ferramentas ligadas/desligadas, microfone mudo, alertas, abrir ao passar o mouse, modo minimalista,
   mascote, iniciar com o Windows e as pastas de plugins e de dados.
 - Em tela cheia (filmes, jogos, apresentações) o notch se esconde sozinho.
+- Com o Chrome (ou outro navegador) aberto embaixo dele, o notch **desvia para o lado** quando o mouse
+  chega perto, liberando as abas. Ele volta ao centro quando o mouse sai do topo da tela
+  (dá para desligar no menu, em "Desviar das abas do navegador").
 
 Os dados ficam em `%APPDATA%\ProjetoNotch` (arquivos `.txt` simples) e a prateleira fica em
 `%LOCALAPPDATA%\ProjetoNotch\Shelf`.

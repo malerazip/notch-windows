@@ -19,6 +19,14 @@ internal static partial class Native
     [LibraryImport("user32.dll", EntryPoint = "SetWindowLongPtrW")]
     public static partial nint SetWindowLongPtr(nint hWnd, int nIndex, nint value);
 
+    [StructLayout(LayoutKind.Sequential)]
+    public struct POINT { public int X, Y; }
+
+    /// <summary>Posição do mouse na tela, em pixels físicos.</summary>
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool GetCursorPos(out POINT point);
+
     [LibraryImport("user32.dll")]
     public static partial nint GetForegroundWindow();
 

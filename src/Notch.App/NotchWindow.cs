@@ -425,6 +425,7 @@ internal sealed partial class NotchWindow : Window, INotchHost
         Loaded += async (_, _) =>
         {
             _status.Start();
+            StartDodge();
             await _media.StartAsync();
             if (Setting("winnotif", false)) await _winNotif.StartAsync();
             CreateTray();
@@ -623,7 +624,7 @@ internal sealed partial class NotchWindow : Window, INotchHost
         if (_alerts.Count > 0)
         {
             var t = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(380) };
-            t.Tick += (_, _) => { t.Stop(); if (_state == State.Compact && !IsHidden) ShowNextAlert(); };
+            t.Tick += (_, _) => { t.Stop(); if (_state == State.Compact && !IsHidden && !Dodged) ShowNextAlert(); };
             t.Start();
         }
     }
@@ -722,7 +723,8 @@ internal sealed partial class NotchWindow : Window, INotchHost
             foreach (var a in rest) _alerts.Enqueue(a);
         }
         _alerts.Enqueue(alert);
-        if (_state == State.Compact && !IsHidden) ShowNextAlert();
+        // desviado das abas do navegador: o alerta espera o notch voltar ao centro para não cobrir as abas
+        if (_state == State.Compact && !IsHidden && !Dodged) ShowNextAlert();
     }
 
     private void ShowNextAlert()
@@ -926,7 +928,7 @@ internal sealed partial class NotchWindow : Window, INotchHost
         {
             // mostra o que ficou guardado enquanto estava escondido
             var t = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(400) };
-            t.Tick += (_, _) => { t.Stop(); if (_state == State.Compact && !IsHidden) ShowNextAlert(); };
+            t.Tick += (_, _) => { t.Stop(); if (_state == State.Compact && !IsHidden && !Dodged) ShowNextAlert(); };
             t.Start();
         }
     }
@@ -952,7 +954,9 @@ internal sealed partial class NotchWindow : Window, INotchHost
 
     private void Reposition()
     {
-        Left = SystemParameters.PrimaryScreenWidth / 2 - Width / 2;
+        // mantém o desvio das abas do navegador, se estiver ativo (veja NotchWindow.Dodge.cs)
+        BeginAnimation(LeftProperty, null);
+        Left = CenterLeft + _dodgeOffset;
         Top = 0;
     }
 
