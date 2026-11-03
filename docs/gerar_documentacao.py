@@ -38,6 +38,7 @@ ARQUIVOS = [
         ("src/Notch.App/App.xaml.cs", "Início do app: instância única, idioma pt-BR, tratamento global de erros."),
         ("src/Notch.App/NotchWindow.cs", "O coração do app: a pílula, os três estados, animações, alertas, páginas e arrastar-e-soltar."),
         ("src/Notch.App/NotchWindow.Tray.cs", "Ícone da bandeja e menu escuro de configurações."),
+        ("src/Notch.App/NotchWindow.Drag.cs", "Arrastar o notch para os lados com o mouse, sem atrapalhar o clique, e lembrar a posição."),
         ("src/Notch.App/NotchWindow.Dodge.cs", "Desvio das abas do navegador: detecta o navegador embaixo do notch e o mouse chegando perto, e desliza o notch para o lado."),
     ]),
     ("Aplicativo: núcleo", [
@@ -414,7 +415,8 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <h3>Comportamentos inteligentes</h3>
 <ul>
 <li><b>Some em tela cheia:</b> filmes, jogos e apresentações em tela cheia escondem o notch automaticamente. Para sumir por um tempo mesmo sem tela cheia, use o <b>modo gamer</b>.</li>
-<li><b>Desvia das abas do navegador:</b> com o Chrome (ou Edge, Firefox, Brave, Opera, Vivaldi) aberto embaixo do notch, quando o mouse chega perto ele desliza para o lado contrário e libera as abas. Ele continua clicável no lugar novo e volta ao centro quando o mouse sai do topo da tela. Alertas que chegarem nesse meio-tempo esperam ele voltar.</li>
+<li><b>Arrastável:</b> segure o notch e arraste para os lados, ao longo do topo da tela. Ele fica onde você soltar (a posição é salva). Com o painel aberto, arraste pelo cabeçalho. Um clique simples continua abrindo o painel.</li>
+<li><b>Desvia das abas do navegador:</b> com o Chrome (ou Edge, Firefox, Brave, Opera, Vivaldi) aberto embaixo do notch, quando o mouse chega perto ele desliza para o lado contrário e libera as abas. Ele continua clicável no lugar novo e volta ao lugar de sempre quando o mouse sai do topo da tela. Alertas que chegarem nesse meio-tempo esperam ele voltar.</li>
 <li><b>Abre só com clique:</b> passar o mouse por cima não abre o notch (dá para mudar no menu, em "Abrir ao passar o mouse").</li>
 <li><b>Largura que se ajusta:</b> o notch fechado é estreito (~100 px) e só alarga quando precisa mostrar algo a mais, como a contagem do Pomodoro ou o ícone da webcam.</li>
 <li><b>Não rouba o foco:</b> clicar no notch não tira o foco da janela onde você está digitando (exceto ao digitar dentro dele).</li>
@@ -434,7 +436,8 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <thead><tr><th>Ação</th><th>Resultado</th></tr></thead>
 <tbody>
 <tr><td>Passar o mouse sobre o notch fechado</td><td>Nada, por padrão. Com a opção "Abrir ao passar o mouse" ligada no menu, abre após ~0,15 s.</td></tr>
-<tr><td>Levar o mouse até o notch com um navegador aberto embaixo</td><td>O notch desliza para o lado e libera as abas. Para abri-lo, clique nele na posição nova. Volta ao centro ~0,8 s depois que o mouse sai do topo da tela.</td></tr>
+<tr><td>Segurar o notch e arrastar para os lados</td><td>Muda o notch de lugar no topo da tela. A posição fica salva. Com o painel aberto, arraste pelo cabeçalho.</td></tr>
+<tr><td>Levar o mouse até o notch com um navegador aberto embaixo</td><td>O notch desliza para o lado e libera as abas. Para abri-lo, clique nele na posição nova. Volta ao lugar de sempre ~0,8 s depois que o mouse sai do topo da tela.</td></tr>
 <tr><td>Tirar o mouse do notch aberto</td><td>Fecha após ~0,45 s. Se você estiver digitando, só fecha ao clicar fora.</td></tr>
 <tr><td>Clique no notch fechado</td><td>Abre o notch na hora.</td></tr>
 <tr><td>Clique no microfone do notch fechado</td><td>Muta/libera o microfone sem abrir o notch (verde = ligado, vermelho = mudo).</td></tr>
@@ -455,6 +458,7 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <li><b>Notificações do Windows no notch:</b> pede permissão ao Windows e passa a espelhar as notificações.</li>
 <li><b>Abrir ao passar o mouse:</b> desligado por padrão (o notch abre só com clique).</li>
 <li><b>Desviar das abas do navegador:</b> ligado por padrão. Desligado, o notch fica sempre parado no centro.</li>
+<li><b>Voltar o notch para o centro:</b> desfaz o arrasto (fica apagado enquanto o notch já está no centro).</li>
 <li><b>Modo minimalista:</b> notch fechado bem pequeno, só com o microfone (e a contagem do Pomodoro, se estiver rodando).</li>
 <li><b>Mascote:</b> olhinhos que piscam quando nada está tocando.</li>
 <li><b>Iniciar com o Windows</b>, <b>Abrir pasta de plugins</b>, <b>Abrir pasta de dados</b>, <b>Sobre</b> e <b>Sair</b>.</li>
@@ -704,7 +708,7 @@ próximo   = máx(último gole ou lembrete, início) + intervalo</code></pre>
 <div class="tabela"><table>
 <thead><tr><th>Arquivo</th><th>Conteúdo</th></tr></thead>
 <tbody>
-<tr><td><code>%APPDATA%\ProjetoNotch\settings.txt</code></td><td><code>page</code> (última página), <code>minimal</code>, <code>mascot</code>, <code>hover</code> (abrir ao passar o mouse), <code>dodge</code> (desviar das abas do navegador), <code>winnotif</code>, <code>disabled</code> (ferramentas desligadas, separadas por vírgula), <code>alerts.bateria</code>, <code>alerts.volume</code>, <code>alerts.brilho</code>, <code>alerts.caps</code>, <code>alerts.idioma</code>, <code>alerts.rede</code>, <code>alerts.bluetooth</code>, <code>welcomed</code></td></tr>
+<tr><td><code>%APPDATA%\ProjetoNotch\settings.txt</code></td><td><code>page</code> (última página), <code>minimal</code>, <code>mascot</code>, <code>hover</code> (abrir ao passar o mouse), <code>dodge</code> (desviar das abas do navegador), <code>offset</code> (posição escolhida arrastando, em pontos a partir do centro), <code>winnotif</code>, <code>disabled</code> (ferramentas desligadas, separadas por vírgula), <code>alerts.bateria</code>, <code>alerts.volume</code>, <code>alerts.brilho</code>, <code>alerts.caps</code>, <code>alerts.idioma</code>, <code>alerts.rede</code>, <code>alerts.bluetooth</code>, <code>welcomed</code></td></tr>
 <tr><td><code>water.txt</code></td><td><code>bottle</code>, <code>goal</code>, <code>dose</code> (ml), <code>every</code> (intervalo em min; 0 = Auto), <code>start</code>/<code>end</code> (minutos desde 00:00), <code>on</code>, <code>day</code>, <code>taken</code>, <code>inb</code> (na garrafa), <code>last</code>, <code>fired</code>, <code>hours</code> (24 valores)</td></tr>
 <tr><td><code>pomodoro.txt</code></td><td><code>foco</code>, <code>curta</code>, <code>longa</code> (min), <code>ciclos</code></td></tr>
 <tr><td><code>todo.txt</code></td><td>Uma tarefa por linha: <code>feito|diaFeito|hora|diaAvisado|título</code></td></tr>

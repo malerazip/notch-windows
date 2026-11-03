@@ -9,7 +9,8 @@ namespace Notch.App;
 /// <summary>
 /// "Desviar das abas do navegador": com o Chrome (ou outro navegador) aberto embaixo do notch,
 /// quando o mouse chega perto o notch desliza para o lado oposto e libera as abas.
-/// Ele fica nesse lugar (e continua clicável lá) até o mouse sair do topo da tela; aí volta ao centro.
+/// Ele fica nesse lugar (e continua clicável lá) até o mouse sair do topo da tela; aí volta para o
+/// lugar de sempre (o centro, ou onde o usuário arrastou o notch).
 /// </summary>
 internal sealed partial class NotchWindow
 {
@@ -45,10 +46,9 @@ internal sealed partial class NotchWindow
 
     private void DodgeTick()
     {
-        if (_hwnd == 0 || !Native.GetCursorPos(out var p)) return;
+        if (_hwnd == 0 || _pressed || IsBeingDragged) return; // segurando/arrastando o notch: não desvia
         var source = PresentationSource.FromVisual(this);
-        if (source?.CompositionTarget == null) return;
-        var cursor = source.CompositionTarget.TransformFromDevice.Transform(new Point(p.X, p.Y));
+        if (source?.CompositionTarget == null || !TryCursorDip(out var cursor)) return;
 
         if (!Dodged)
         {
@@ -117,7 +117,7 @@ internal sealed partial class NotchWindow
     {
         _dodgeOffset = offset;
         _returnAt = null;
-        var target = CenterLeft + offset;
+        var target = HomeLeft + offset; // o desvio é a partir do lugar escolhido pelo usuário (veja NotchWindow.Drag.cs)
         if (!animate)
         {
             BeginAnimation(LeftProperty, null);

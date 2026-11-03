@@ -311,6 +311,7 @@ internal sealed partial class NotchWindow : Window, INotchHost
 
     private void WireEvents()
     {
+        WireDrag();
         _shell.MouseEnter += (_, _) =>
         {
             _leaveTimer.Stop();
@@ -954,9 +955,10 @@ internal sealed partial class NotchWindow : Window, INotchHost
 
     private void Reposition()
     {
-        // mantém o desvio das abas do navegador, se estiver ativo (veja NotchWindow.Dodge.cs)
+        // posição escolhida arrastando (NotchWindow.Drag.cs) + desvio das abas, se ativo (NotchWindow.Dodge.cs)
+        ClampHomeOffset();
         BeginAnimation(LeftProperty, null);
-        Left = CenterLeft + _dodgeOffset;
+        Left = HomeLeft + _dodgeOffset;
         Top = 0;
     }
 

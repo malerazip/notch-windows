@@ -140,6 +140,11 @@ internal sealed partial class NotchWindow
             SaveSetting("dodge", on);
             if (!on && Dodged) ReturnToCenter();
         }));
+        _menu.Items.Add(new Forms.ToolStripMenuItem("Voltar o notch para o centro", null, (_, _) => Dispatcher.BeginInvoke(ResetHomeOffset))
+        {
+            ForeColor = Drawing.Color.White,
+            Enabled = _homeOffset != 0, // só faz sentido depois de arrastar
+        });
         _menu.Items.Add(Check("Modo minimalista", Setting("minimal", false), on =>
         {
             SaveSetting("minimal", on);

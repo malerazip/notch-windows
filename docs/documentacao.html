@@ -192,8 +192,8 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 </header>
 <div class="numeros">
   <div class="numero"><b>8</b><span>ferramentas (7 internas + 1 plugin)</span></div>
-  <div class="numero"><b>40</b><span>arquivos de código</span></div>
-  <div class="numero"><b>5.554</b><span>linhas de código</span></div>
+  <div class="numero"><b>41</b><span>arquivos de código</span></div>
+  <div class="numero"><b>5.684</b><span>linhas de código</span></div>
   <div class="numero"><b>~95 MB</b><span>de memória em uso</span></div>
 </div>
 <p class="sub">Versão 1.0.0 · documentação gerada em 02/11/2026 a partir do código atual.</p>
@@ -265,7 +265,8 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <h3>Comportamentos inteligentes</h3>
 <ul>
 <li><b>Some em tela cheia:</b> filmes, jogos e apresentações em tela cheia escondem o notch automaticamente. Para sumir por um tempo mesmo sem tela cheia, use o <b>modo gamer</b>.</li>
-<li><b>Desvia das abas do navegador:</b> com o Chrome (ou Edge, Firefox, Brave, Opera, Vivaldi) aberto embaixo do notch, quando o mouse chega perto ele desliza para o lado contrário e libera as abas. Ele continua clicável no lugar novo e volta ao centro quando o mouse sai do topo da tela. Alertas que chegarem nesse meio-tempo esperam ele voltar.</li>
+<li><b>Arrastável:</b> segure o notch e arraste para os lados, ao longo do topo da tela. Ele fica onde você soltar (a posição é salva). Com o painel aberto, arraste pelo cabeçalho. Um clique simples continua abrindo o painel.</li>
+<li><b>Desvia das abas do navegador:</b> com o Chrome (ou Edge, Firefox, Brave, Opera, Vivaldi) aberto embaixo do notch, quando o mouse chega perto ele desliza para o lado contrário e libera as abas. Ele continua clicável no lugar novo e volta ao lugar de sempre quando o mouse sai do topo da tela. Alertas que chegarem nesse meio-tempo esperam ele voltar.</li>
 <li><b>Abre só com clique:</b> passar o mouse por cima não abre o notch (dá para mudar no menu, em "Abrir ao passar o mouse").</li>
 <li><b>Largura que se ajusta:</b> o notch fechado é estreito (~100 px) e só alarga quando precisa mostrar algo a mais, como a contagem do Pomodoro ou o ícone da webcam.</li>
 <li><b>Não rouba o foco:</b> clicar no notch não tira o foco da janela onde você está digitando (exceto ao digitar dentro dele).</li>
@@ -285,7 +286,8 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <thead><tr><th>Ação</th><th>Resultado</th></tr></thead>
 <tbody>
 <tr><td>Passar o mouse sobre o notch fechado</td><td>Nada, por padrão. Com a opção "Abrir ao passar o mouse" ligada no menu, abre após ~0,15 s.</td></tr>
-<tr><td>Levar o mouse até o notch com um navegador aberto embaixo</td><td>O notch desliza para o lado e libera as abas. Para abri-lo, clique nele na posição nova. Volta ao centro ~0,8 s depois que o mouse sai do topo da tela.</td></tr>
+<tr><td>Segurar o notch e arrastar para os lados</td><td>Muda o notch de lugar no topo da tela. A posição fica salva. Com o painel aberto, arraste pelo cabeçalho.</td></tr>
+<tr><td>Levar o mouse até o notch com um navegador aberto embaixo</td><td>O notch desliza para o lado e libera as abas. Para abri-lo, clique nele na posição nova. Volta ao lugar de sempre ~0,8 s depois que o mouse sai do topo da tela.</td></tr>
 <tr><td>Tirar o mouse do notch aberto</td><td>Fecha após ~0,45 s. Se você estiver digitando, só fecha ao clicar fora.</td></tr>
 <tr><td>Clique no notch fechado</td><td>Abre o notch na hora.</td></tr>
 <tr><td>Clique no microfone do notch fechado</td><td>Muta/libera o microfone sem abrir o notch (verde = ligado, vermelho = mudo).</td></tr>
@@ -306,6 +308,7 @@ footer { color: var(--faint); font-size: 13px; padding: 30px 0; }
 <li><b>Notificações do Windows no notch:</b> pede permissão ao Windows e passa a espelhar as notificações.</li>
 <li><b>Abrir ao passar o mouse:</b> desligado por padrão (o notch abre só com clique).</li>
 <li><b>Desviar das abas do navegador:</b> ligado por padrão. Desligado, o notch fica sempre parado no centro.</li>
+<li><b>Voltar o notch para o centro:</b> desfaz o arrasto (fica apagado enquanto o notch já está no centro).</li>
 <li><b>Modo minimalista:</b> notch fechado bem pequeno, só com o microfone (e a contagem do Pomodoro, se estiver rodando).</li>
 <li><b>Mascote:</b> olhinhos que piscam quando nada está tocando.</li>
 <li><b>Iniciar com o Windows</b>, <b>Abrir pasta de plugins</b>, <b>Abrir pasta de dados</b>, <b>Sobre</b> e <b>Sair</b>.</li>
@@ -555,7 +558,7 @@ próximo   = máx(último gole ou lembrete, início) + intervalo</code></pre>
 <div class="tabela"><table>
 <thead><tr><th>Arquivo</th><th>Conteúdo</th></tr></thead>
 <tbody>
-<tr><td><code>%APPDATA%\ProjetoNotch\settings.txt</code></td><td><code>page</code> (última página), <code>minimal</code>, <code>mascot</code>, <code>hover</code> (abrir ao passar o mouse), <code>dodge</code> (desviar das abas do navegador), <code>winnotif</code>, <code>disabled</code> (ferramentas desligadas, separadas por vírgula), <code>alerts.bateria</code>, <code>alerts.volume</code>, <code>alerts.brilho</code>, <code>alerts.caps</code>, <code>alerts.idioma</code>, <code>alerts.rede</code>, <code>alerts.bluetooth</code>, <code>welcomed</code></td></tr>
+<tr><td><code>%APPDATA%\ProjetoNotch\settings.txt</code></td><td><code>page</code> (última página), <code>minimal</code>, <code>mascot</code>, <code>hover</code> (abrir ao passar o mouse), <code>dodge</code> (desviar das abas do navegador), <code>offset</code> (posição escolhida arrastando, em pontos a partir do centro), <code>winnotif</code>, <code>disabled</code> (ferramentas desligadas, separadas por vírgula), <code>alerts.bateria</code>, <code>alerts.volume</code>, <code>alerts.brilho</code>, <code>alerts.caps</code>, <code>alerts.idioma</code>, <code>alerts.rede</code>, <code>alerts.bluetooth</code>, <code>welcomed</code></td></tr>
 <tr><td><code>water.txt</code></td><td><code>bottle</code>, <code>goal</code>, <code>dose</code> (ml), <code>every</code> (intervalo em min; 0 = Auto), <code>start</code>/<code>end</code> (minutos desde 00:00), <code>on</code>, <code>day</code>, <code>taken</code>, <code>inb</code> (na garrafa), <code>last</code>, <code>fired</code>, <code>hours</code> (24 valores)</td></tr>
 <tr><td><code>pomodoro.txt</code></td><td><code>foco</code>, <code>curta</code>, <code>longa</code> (min), <code>ciclos</code></td></tr>
 <tr><td><code>todo.txt</code></td><td>Uma tarefa por linha: <code>feito|diaFeito|hora|diaAvisado|título</code></td></tr>
@@ -786,10 +789,10 @@ python docs\gerar_documentacao.py</code></pre>
 <!-- =============================================================== -->
 <section id="codigo">
 <h2>Código-fonte completo</h2>
-<p class="sub">Todos os 40 arquivos (5.554 linhas), exatamente como estão no projeto. Clique num arquivo para expandir.</p>
+<p class="sub">Todos os 41 arquivos (5.684 linhas), exatamente como estão no projeto. Clique num arquivo para expandir.</p>
 <div class="botoes-codigo"><button type="button" id="abrirTodos">Expandir todos</button><button type="button" id="fecharTodos">Recolher todos</button></div>
 <h3>Mapa de arquivos</h3>
-<div class="tabela"><table><thead><tr><th>Arquivo</th><th class="num">Linhas</th><th>O que faz</th></tr></thead><tbody><tr><td><a href="#arq-directory-build-props"><code>Directory.Build.props</code></a></td><td class="num">18</td><td>Configurações comuns a todos os projetos: .NET 10, WPF, versão e pasta de compilação fora do OneDrive.</td></tr><tr><td><a href="#arq-projetonotch-slnx"><code>ProjetoNotch.slnx</code></a></td><td class="num">10</td><td>Solução que agrupa o app, o SDK e o plugin de exemplo.</td></tr><tr><td><a href="#arq-publicar-ps1"><code>publicar.ps1</code></a></td><td class="num">22</td><td>Script que compila e gera dist\ProjetoNotch.exe (e opcionalmente instala o plugin de exemplo).</td></tr><tr><td><a href="#arq-src-notch-app-notch-app-csproj"><code>src/Notch.App/Notch.App.csproj</code></a></td><td class="num">36</td><td>Projeto do aplicativo: dependências (NAudio, System.Management), ícone e manifesto.</td></tr><tr><td><a href="#arq-src-notch-app-app-manifest"><code>src/Notch.App/app.manifest</code></a></td><td class="num">23</td><td>Manifesto do Windows: execução sem administrador e DPI por monitor (nitidez em telas 4K).</td></tr><tr><td><a href="#arq-src-notch-sdk-notch-sdk-csproj"><code>src/Notch.Sdk/Notch.Sdk.csproj</code></a></td><td class="num">10</td><td>Biblioteca compartilhada entre o app e os plugins.</td></tr><tr><td><a href="#arq-src-notch-sdk-inotchmodule-cs"><code>src/Notch.Sdk/INotchModule.cs</code></a></td><td class="num">57</td><td>Contratos: INotchModule (uma ferramenta) e INotchHost (serviços que o notch oferece).</td></tr><tr><td><a href="#arq-src-notch-sdk-notchalert-cs"><code>src/Notch.Sdk/NotchAlert.cs</code></a></td><td class="num">32</td><td>Modelo dos alertas: título, mensagem, ícone, barra de progresso, botões de ação.</td></tr><tr><td><a href="#arq-src-notch-sdk-keyvaluefile-cs"><code>src/Notch.Sdk/KeyValueFile.cs</code></a></td><td class="num">51</td><td>Armazenamento simples em arquivos .txt no formato chave=valor.</td></tr><tr><td><a href="#arq-src-notch-sdk-notchtheme-cs"><code>src/Notch.Sdk/NotchTheme.cs</code></a></td><td class="num">82</td><td>Cores, fontes e glifos (ícones) do visual do notch.</td></tr><tr><td><a href="#arq-src-notch-sdk-ui-cs"><code>src/Notch.Sdk/Ui.cs</code></a></td><td class="num">237</td><td>Componentes prontos: textos, botões em pílula, chips, interruptor, barra de progresso, campo de texto.</td></tr><tr><td><a href="#arq-src-notch-app-app-xaml"><code>src/Notch.App/App.xaml</code></a></td><td class="num">15</td><td>Definição do aplicativo WPF e estilo das dicas (tooltips).</td></tr><tr><td><a href="#arq-src-notch-app-app-xaml-cs"><code>src/Notch.App/App.xaml.cs</code></a></td><td class="num">50</td><td>Início do app: instância única, idioma pt-BR, tratamento global de erros.</td></tr><tr><td><a href="#arq-src-notch-app-notchwindow-cs"><code>src/Notch.App/NotchWindow.cs</code></a></td><td class="num">1010</td><td>O coração do app: a pílula, os três estados, animações, alertas, páginas e arrastar-e-soltar.</td></tr><tr><td><a href="#arq-src-notch-app-notchwindow-tray-cs"><code>src/Notch.App/NotchWindow.Tray.cs</code></a></td><td class="num">258</td><td>Ícone da bandeja e menu escuro de configurações.</td></tr><tr><td><a href="#arq-src-notch-app-notchwindow-dodge-cs"><code>src/Notch.App/NotchWindow.Dodge.cs</code></a></td><td class="num">151</td><td>Desvio das abas do navegador: detecta o navegador embaixo do notch e o mouse chegando perto, e desliza o notch para o lado.</td></tr><tr><td><a href="#arq-src-notch-app-core-paths-cs"><code>src/Notch.App/Core/Paths.cs</code></a></td><td class="num">33</td><td>Pastas de dados, plugins e prateleira; arquivo de log.</td></tr><tr><td><a href="#arq-src-notch-app-core-autostart-cs"><code>src/Notch.App/Core/Autostart.cs</code></a></td><td class="num">27</td><td>Liga/desliga o &quot;Iniciar com o Windows&quot; (registro do usuário).</td></tr><tr><td><a href="#arq-src-notch-app-core-native-cs"><code>src/Notch.App/Core/Native.cs</code></a></td><td class="num">73</td><td>Chamadas diretas à API do Windows (janela em primeiro plano, Caps Lock, idioma, sempre no topo).</td></tr><tr><td><a href="#arq-src-notch-app-core-pluginloader-cs"><code>src/Notch.App/Core/PluginLoader.cs</code></a></td><td class="num">63</td><td>Carregador de plugins: lê as DLLs da pasta de plugins em contextos isolados.</td></tr><tr><td><a href="#arq-src-notch-app-controls-ringprogress-cs"><code>src/Notch.App/Controls/RingProgress.cs</code></a></td><td class="num">60</td><td>Anel de progresso (água, pomodoro).</td></tr><tr><td><a href="#arq-src-notch-app-controls-audiobars-cs"><code>src/Notch.App/Controls/AudioBars.cs</code></a></td><td class="num">110</td><td>Barrinhas de áudio que reagem ao volume real do som.</td></tr><tr><td><a href="#arq-src-notch-app-controls-batteryicon-cs"><code>src/Notch.App/Controls/BatteryIcon.cs</code></a></td><td class="num">61</td><td>Anel de bateria com raio ao carregar.</td></tr><tr><td><a href="#arq-src-notch-app-controls-mascot-cs"><code>src/Notch.App/Controls/Mascot.cs</code></a></td><td class="num">74</td><td>Mascote: olhinhos que piscam e olham para os lados.</td></tr><tr><td><a href="#arq-src-notch-app-services-mediaservice-cs"><code>src/Notch.App/Services/MediaService.cs</code></a></td><td class="num">169</td><td>Música tocando em qualquer player, via controles de mídia do Windows.</td></tr><tr><td><a href="#arq-src-notch-app-services-lyricsservice-cs"><code>src/Notch.App/Services/LyricsService.cs</code></a></td><td class="num">111</td><td>Busca de letras sincronizadas no LRCLIB.</td></tr><tr><td><a href="#arq-src-notch-app-services-audioservice-cs"><code>src/Notch.App/Services/AudioService.cs</code></a></td><td class="num">156</td><td>Volume do Windows e nível do som (Core Audio, via NAudio).</td></tr><tr><td><a href="#arq-src-notch-app-services-systemstatusservice-cs"><code>src/Notch.App/Services/SystemStatusService.cs</code></a></td><td class="num">266</td><td>Bateria, carregador, rede, Bluetooth, Caps Lock, idioma do teclado e brilho.</td></tr><tr><td><a href="#arq-src-notch-app-services-windowsnotificationservice-cs"><code>src/Notch.App/Services/WindowsNotificationService.cs</code></a></td><td class="num">112</td><td>Espelho das notificações do Windows (opcional).</td></tr><tr><td><a href="#arq-src-notch-app-services-cameraservice-cs"><code>src/Notch.App/Services/CameraService.cs</code></a></td><td class="num">252</td><td>Indicador da webcam: descobre quais programas estão usando a câmera, sem abri-la.</td></tr><tr><td><a href="#arq-src-notch-app-modules-modulebase-cs"><code>src/Notch.App/Modules/ModuleBase.cs</code></a></td><td class="num">36</td><td>Base das ferramentas internas (timer que só roda com a página visível).</td></tr><tr><td><a href="#arq-src-notch-app-modules-musicmodule-cs"><code>src/Notch.App/Modules/MusicModule.cs</code></a></td><td class="num">126</td><td>Página &quot;Tocando Agora&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-lyricsmodule-cs"><code>src/Notch.App/Modules/LyricsModule.cs</code></a></td><td class="num">138</td><td>Página &quot;Letra da Música&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-pomodoromodule-cs"><code>src/Notch.App/Modules/PomodoroModule.cs</code></a></td><td class="num">210</td><td>Página &quot;Timer Pomodoro&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-watermodule-cs"><code>src/Notch.App/Modules/WaterModule.cs</code></a></td><td class="num">391</td><td>Página &quot;Lembrete de Água&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-todomodule-cs"><code>src/Notch.App/Modules/TodoModule.cs</code></a></td><td class="num">267</td><td>Página &quot;Lista de Tarefas&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-shelfmodule-cs"><code>src/Notch.App/Modules/ShelfModule.cs</code></a></td><td class="num">283</td><td>Página &quot;Prateleira de Arquivos&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-sitemodule-cs"><code>src/Notch.App/Modules/SiteModule.cs</code></a></td><td class="num">344</td><td>Página &quot;Novidades do Site&quot; (conexão com o seu site).</td></tr><tr><td><a href="#arq-plugins-exemplo-cotacao-exemplo-cotacao-csproj"><code>plugins/Exemplo.Cotacao/Exemplo.Cotacao.csproj</code></a></td><td class="num">20</td><td>Projeto do plugin: referencia o Notch.Sdk sem copiá-lo.</td></tr><tr><td><a href="#arq-plugins-exemplo-cotacao-cotacaomodule-cs"><code>plugins/Exemplo.Cotacao/CotacaoModule.cs</code></a></td><td class="num">110</td><td>Página &quot;Cotação do Dia&quot;: dólar, euro e bitcoin pela AwesomeAPI.</td></tr></tbody></table></div>
+<div class="tabela"><table><thead><tr><th>Arquivo</th><th class="num">Linhas</th><th>O que faz</th></tr></thead><tbody><tr><td><a href="#arq-directory-build-props"><code>Directory.Build.props</code></a></td><td class="num">18</td><td>Configurações comuns a todos os projetos: .NET 10, WPF, versão e pasta de compilação fora do OneDrive.</td></tr><tr><td><a href="#arq-projetonotch-slnx"><code>ProjetoNotch.slnx</code></a></td><td class="num">10</td><td>Solução que agrupa o app, o SDK e o plugin de exemplo.</td></tr><tr><td><a href="#arq-publicar-ps1"><code>publicar.ps1</code></a></td><td class="num">22</td><td>Script que compila e gera dist\ProjetoNotch.exe (e opcionalmente instala o plugin de exemplo).</td></tr><tr><td><a href="#arq-src-notch-app-notch-app-csproj"><code>src/Notch.App/Notch.App.csproj</code></a></td><td class="num">36</td><td>Projeto do aplicativo: dependências (NAudio, System.Management), ícone e manifesto.</td></tr><tr><td><a href="#arq-src-notch-app-app-manifest"><code>src/Notch.App/app.manifest</code></a></td><td class="num">23</td><td>Manifesto do Windows: execução sem administrador e DPI por monitor (nitidez em telas 4K).</td></tr><tr><td><a href="#arq-src-notch-sdk-notch-sdk-csproj"><code>src/Notch.Sdk/Notch.Sdk.csproj</code></a></td><td class="num">10</td><td>Biblioteca compartilhada entre o app e os plugins.</td></tr><tr><td><a href="#arq-src-notch-sdk-inotchmodule-cs"><code>src/Notch.Sdk/INotchModule.cs</code></a></td><td class="num">57</td><td>Contratos: INotchModule (uma ferramenta) e INotchHost (serviços que o notch oferece).</td></tr><tr><td><a href="#arq-src-notch-sdk-notchalert-cs"><code>src/Notch.Sdk/NotchAlert.cs</code></a></td><td class="num">32</td><td>Modelo dos alertas: título, mensagem, ícone, barra de progresso, botões de ação.</td></tr><tr><td><a href="#arq-src-notch-sdk-keyvaluefile-cs"><code>src/Notch.Sdk/KeyValueFile.cs</code></a></td><td class="num">51</td><td>Armazenamento simples em arquivos .txt no formato chave=valor.</td></tr><tr><td><a href="#arq-src-notch-sdk-notchtheme-cs"><code>src/Notch.Sdk/NotchTheme.cs</code></a></td><td class="num">82</td><td>Cores, fontes e glifos (ícones) do visual do notch.</td></tr><tr><td><a href="#arq-src-notch-sdk-ui-cs"><code>src/Notch.Sdk/Ui.cs</code></a></td><td class="num">237</td><td>Componentes prontos: textos, botões em pílula, chips, interruptor, barra de progresso, campo de texto.</td></tr><tr><td><a href="#arq-src-notch-app-app-xaml"><code>src/Notch.App/App.xaml</code></a></td><td class="num">15</td><td>Definição do aplicativo WPF e estilo das dicas (tooltips).</td></tr><tr><td><a href="#arq-src-notch-app-app-xaml-cs"><code>src/Notch.App/App.xaml.cs</code></a></td><td class="num">50</td><td>Início do app: instância única, idioma pt-BR, tratamento global de erros.</td></tr><tr><td><a href="#arq-src-notch-app-notchwindow-cs"><code>src/Notch.App/NotchWindow.cs</code></a></td><td class="num">1012</td><td>O coração do app: a pílula, os três estados, animações, alertas, páginas e arrastar-e-soltar.</td></tr><tr><td><a href="#arq-src-notch-app-notchwindow-tray-cs"><code>src/Notch.App/NotchWindow.Tray.cs</code></a></td><td class="num">263</td><td>Ícone da bandeja e menu escuro de configurações.</td></tr><tr><td><a href="#arq-src-notch-app-notchwindow-drag-cs"><code>src/Notch.App/NotchWindow.Drag.cs</code></a></td><td class="num">123</td><td>Arrastar o notch para os lados com o mouse, sem atrapalhar o clique, e lembrar a posição.</td></tr><tr><td><a href="#arq-src-notch-app-notchwindow-dodge-cs"><code>src/Notch.App/NotchWindow.Dodge.cs</code></a></td><td class="num">151</td><td>Desvio das abas do navegador: detecta o navegador embaixo do notch e o mouse chegando perto, e desliza o notch para o lado.</td></tr><tr><td><a href="#arq-src-notch-app-core-paths-cs"><code>src/Notch.App/Core/Paths.cs</code></a></td><td class="num">33</td><td>Pastas de dados, plugins e prateleira; arquivo de log.</td></tr><tr><td><a href="#arq-src-notch-app-core-autostart-cs"><code>src/Notch.App/Core/Autostart.cs</code></a></td><td class="num">27</td><td>Liga/desliga o &quot;Iniciar com o Windows&quot; (registro do usuário).</td></tr><tr><td><a href="#arq-src-notch-app-core-native-cs"><code>src/Notch.App/Core/Native.cs</code></a></td><td class="num">73</td><td>Chamadas diretas à API do Windows (janela em primeiro plano, Caps Lock, idioma, sempre no topo).</td></tr><tr><td><a href="#arq-src-notch-app-core-pluginloader-cs"><code>src/Notch.App/Core/PluginLoader.cs</code></a></td><td class="num">63</td><td>Carregador de plugins: lê as DLLs da pasta de plugins em contextos isolados.</td></tr><tr><td><a href="#arq-src-notch-app-controls-ringprogress-cs"><code>src/Notch.App/Controls/RingProgress.cs</code></a></td><td class="num">60</td><td>Anel de progresso (água, pomodoro).</td></tr><tr><td><a href="#arq-src-notch-app-controls-audiobars-cs"><code>src/Notch.App/Controls/AudioBars.cs</code></a></td><td class="num">110</td><td>Barrinhas de áudio que reagem ao volume real do som.</td></tr><tr><td><a href="#arq-src-notch-app-controls-batteryicon-cs"><code>src/Notch.App/Controls/BatteryIcon.cs</code></a></td><td class="num">61</td><td>Anel de bateria com raio ao carregar.</td></tr><tr><td><a href="#arq-src-notch-app-controls-mascot-cs"><code>src/Notch.App/Controls/Mascot.cs</code></a></td><td class="num">74</td><td>Mascote: olhinhos que piscam e olham para os lados.</td></tr><tr><td><a href="#arq-src-notch-app-services-mediaservice-cs"><code>src/Notch.App/Services/MediaService.cs</code></a></td><td class="num">169</td><td>Música tocando em qualquer player, via controles de mídia do Windows.</td></tr><tr><td><a href="#arq-src-notch-app-services-lyricsservice-cs"><code>src/Notch.App/Services/LyricsService.cs</code></a></td><td class="num">111</td><td>Busca de letras sincronizadas no LRCLIB.</td></tr><tr><td><a href="#arq-src-notch-app-services-audioservice-cs"><code>src/Notch.App/Services/AudioService.cs</code></a></td><td class="num">156</td><td>Volume do Windows e nível do som (Core Audio, via NAudio).</td></tr><tr><td><a href="#arq-src-notch-app-services-systemstatusservice-cs"><code>src/Notch.App/Services/SystemStatusService.cs</code></a></td><td class="num">266</td><td>Bateria, carregador, rede, Bluetooth, Caps Lock, idioma do teclado e brilho.</td></tr><tr><td><a href="#arq-src-notch-app-services-windowsnotificationservice-cs"><code>src/Notch.App/Services/WindowsNotificationService.cs</code></a></td><td class="num">112</td><td>Espelho das notificações do Windows (opcional).</td></tr><tr><td><a href="#arq-src-notch-app-services-cameraservice-cs"><code>src/Notch.App/Services/CameraService.cs</code></a></td><td class="num">252</td><td>Indicador da webcam: descobre quais programas estão usando a câmera, sem abri-la.</td></tr><tr><td><a href="#arq-src-notch-app-modules-modulebase-cs"><code>src/Notch.App/Modules/ModuleBase.cs</code></a></td><td class="num">36</td><td>Base das ferramentas internas (timer que só roda com a página visível).</td></tr><tr><td><a href="#arq-src-notch-app-modules-musicmodule-cs"><code>src/Notch.App/Modules/MusicModule.cs</code></a></td><td class="num">126</td><td>Página &quot;Tocando Agora&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-lyricsmodule-cs"><code>src/Notch.App/Modules/LyricsModule.cs</code></a></td><td class="num">138</td><td>Página &quot;Letra da Música&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-pomodoromodule-cs"><code>src/Notch.App/Modules/PomodoroModule.cs</code></a></td><td class="num">210</td><td>Página &quot;Timer Pomodoro&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-watermodule-cs"><code>src/Notch.App/Modules/WaterModule.cs</code></a></td><td class="num">391</td><td>Página &quot;Lembrete de Água&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-todomodule-cs"><code>src/Notch.App/Modules/TodoModule.cs</code></a></td><td class="num">267</td><td>Página &quot;Lista de Tarefas&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-shelfmodule-cs"><code>src/Notch.App/Modules/ShelfModule.cs</code></a></td><td class="num">283</td><td>Página &quot;Prateleira de Arquivos&quot;.</td></tr><tr><td><a href="#arq-src-notch-app-modules-sitemodule-cs"><code>src/Notch.App/Modules/SiteModule.cs</code></a></td><td class="num">344</td><td>Página &quot;Novidades do Site&quot; (conexão com o seu site).</td></tr><tr><td><a href="#arq-plugins-exemplo-cotacao-exemplo-cotacao-csproj"><code>plugins/Exemplo.Cotacao/Exemplo.Cotacao.csproj</code></a></td><td class="num">20</td><td>Projeto do plugin: referencia o Notch.Sdk sem copiá-lo.</td></tr><tr><td><a href="#arq-plugins-exemplo-cotacao-cotacaomodule-cs"><code>plugins/Exemplo.Cotacao/CotacaoModule.cs</code></a></td><td class="num">110</td><td>Página &quot;Cotação do Dia&quot;: dólar, euro e bitcoin pela AwesomeAPI.</td></tr></tbody></table></div>
 <h3 class="grupo">Configuração do projeto</h3>
 <details class="arquivo" id="arq-directory-build-props"><summary><span class="caminho">Directory.Build.props</span><span class="meta">18 linhas</span><span class="desc">Configurações comuns a todos os projetos: .NET 10, WPF, versão e pasta de compilação fora do OneDrive.</span></summary><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code class="language-xml">&lt;Project&gt;
   &lt;!-- bin/obj ficam fora do OneDrive para não sincronizar arquivos temporários de compilação --&gt;
@@ -1436,7 +1439,7 @@ public partial class App : Application
     }
 }
 </code></pre></div></details>
-<details class="arquivo" id="arq-src-notch-app-notchwindow-cs"><summary><span class="caminho">src/Notch.App/NotchWindow.cs</span><span class="meta">1010 linhas</span><span class="desc">O coração do app: a pílula, os três estados, animações, alertas, páginas e arrastar-e-soltar.</span></summary><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code class="language-csharp">using System.Globalization;
+<details class="arquivo" id="arq-src-notch-app-notchwindow-cs"><summary><span class="caminho">src/Notch.App/NotchWindow.cs</span><span class="meta">1012 linhas</span><span class="desc">O coração do app: a pílula, os três estados, animações, alertas, páginas e arrastar-e-soltar.</span></summary><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code class="language-csharp">using System.Globalization;
 using System.Net.Http;
 using System.Windows;
 using System.Windows.Controls;
@@ -1749,6 +1752,7 @@ internal sealed partial class NotchWindow : Window, INotchHost
 
     private void WireEvents()
     {
+        WireDrag();
         _shell.MouseEnter += (_, _) =&gt;
         {
             _leaveTimer.Stop();
@@ -2392,9 +2396,10 @@ internal sealed partial class NotchWindow : Window, INotchHost
 
     private void Reposition()
     {
-        // mantém o desvio das abas do navegador, se estiver ativo (veja NotchWindow.Dodge.cs)
+        // posição escolhida arrastando (NotchWindow.Drag.cs) + desvio das abas, se ativo (NotchWindow.Dodge.cs)
+        ClampHomeOffset();
         BeginAnimation(LeftProperty, null);
-        Left = CenterLeft + _dodgeOffset;
+        Left = HomeLeft + _dodgeOffset;
         Top = 0;
     }
 
@@ -2446,7 +2451,7 @@ internal sealed partial class NotchWindow : Window, INotchHost
     }
 }
 </code></pre></div></details>
-<details class="arquivo" id="arq-src-notch-app-notchwindow-tray-cs"><summary><span class="caminho">src/Notch.App/NotchWindow.Tray.cs</span><span class="meta">258 linhas</span><span class="desc">Ícone da bandeja e menu escuro de configurações.</span></summary><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code class="language-csharp">using System.Diagnostics;
+<details class="arquivo" id="arq-src-notch-app-notchwindow-tray-cs"><summary><span class="caminho">src/Notch.App/NotchWindow.Tray.cs</span><span class="meta">263 linhas</span><span class="desc">Ícone da bandeja e menu escuro de configurações.</span></summary><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code class="language-csharp">using System.Diagnostics;
 using System.Windows;
 using Notch.App.Core;
 using Notch.Sdk;
@@ -2588,6 +2593,11 @@ internal sealed partial class NotchWindow
             SaveSetting(&quot;dodge&quot;, on);
             if (!on &amp;&amp; Dodged) ReturnToCenter();
         }));
+        _menu.Items.Add(new Forms.ToolStripMenuItem(&quot;Voltar o notch para o centro&quot;, null, (_, _) =&gt; Dispatcher.BeginInvoke(ResetHomeOffset))
+        {
+            ForeColor = Drawing.Color.White,
+            Enabled = _homeOffset != 0, // só faz sentido depois de arrastar
+        });
         _menu.Items.Add(Check(&quot;Modo minimalista&quot;, Setting(&quot;minimal&quot;, false), on =&gt;
         {
             SaveSetting(&quot;minimal&quot;, on);
@@ -2704,6 +2714,129 @@ internal sealed partial class NotchWindow
     }
 }
 </code></pre></div></details>
+<details class="arquivo" id="arq-src-notch-app-notchwindow-drag-cs"><summary><span class="caminho">src/Notch.App/NotchWindow.Drag.cs</span><span class="meta">123 linhas</span><span class="desc">Arrastar o notch para os lados com o mouse, sem atrapalhar o clique, e lembrar a posição.</span></summary><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code class="language-csharp">using System.Windows;
+using System.Windows.Input;
+using Notch.App.Core;
+
+namespace Notch.App;
+
+/// &lt;summary&gt;
+/// Arrastar o notch com o mouse para os lados, ao longo do topo da tela.
+/// Um clique simples continua abrindo o painel: só vira arrasto depois que o mouse anda alguns pixels
+/// com o botão apertado. A posição fica salva (settings.txt, chave &quot;offset&quot;, em pontos a partir do centro).
+/// &lt;/summary&gt;
+internal sealed partial class NotchWindow
+{
+    private const double DragThreshold = 6;     // pixels andados com o botão apertado até virar arrasto
+    private const double HeaderHeight = 34;     // com o painel aberto, só arrasta pelo cabeçalho
+
+    private double _homeOffset;                 // posição escolhida pelo usuário (0 = centro da tela)
+    private bool _pressed;
+    private bool _moving;
+    private Point _pressCursor;
+    private double _pressLeft;
+
+    /// &lt;summary&gt;Posição &quot;de casa&quot; da janela: o centro da tela mais o deslocamento salvo.&lt;/summary&gt;
+    private double HomeLeft =&gt; CenterLeft + _homeOffset;
+
+    /// &lt;summary&gt;Sendo arrastado agora (o desvio das abas fica pausado).&lt;/summary&gt;
+    private bool IsBeingDragged =&gt; _moving;
+
+    private void WireDrag()
+    {
+        _homeOffset = _settings.GetInt(&quot;offset&quot;, 0);
+        ClampHomeOffset();
+
+        _shell.PreviewMouseLeftButtonDown += (_, e) =&gt;
+        {
+            // painel aberto: arrasta só pelo cabeçalho, para não atrapalhar botões, listas e campos de texto
+            if (_state == State.Expanded &amp;&amp; e.GetPosition(_expandedLayer).Y &gt; HeaderHeight) return;
+            if (!TryCursorDip(out var c)) return;
+            _pressed = true;
+            _pressCursor = c;
+            _pressLeft = Left;
+        };
+
+        _shell.PreviewMouseMove += (_, e) =&gt;
+        {
+            if (!_pressed) return;
+            if (e.LeftButton != MouseButtonState.Pressed) { _pressed = false; return; }
+            if (!TryCursorDip(out var c)) return;
+            var dx = c.X - _pressCursor.X;
+            if (!_moving)
+            {
+                if (Math.Abs(dx) &lt; DragThreshold &amp;&amp; Math.Abs(c.Y - _pressCursor.Y) &lt; DragThreshold) return;
+                _moving = true;
+                _hoverTimer.Stop();
+                _alertTimer.Stop();                // alerta não some no meio do arrasto
+                // se estava desviado das abas, o lugar onde for solto vira a nova casa
+                BeginAnimation(LeftProperty, null);
+                _dodgeOffset = 0;
+                _returnAt = null;
+                _shell.CaptureMouse();
+                _shell.Cursor = Cursors.SizeWE;
+            }
+            Left = CenterLeft + ClampOffset(_pressLeft + dx - CenterLeft);
+        };
+
+        _shell.PreviewMouseLeftButtonUp += (_, e) =&gt;
+        {
+            _pressed = false;
+            if (!_moving) return;              // foi só um clique: abre o painel normalmente
+            FinishDrag();
+            e.Handled = true;                  // soltar depois de arrastar não conta como clique
+        };
+
+        _shell.LostMouseCapture += (_, _) =&gt; { if (_moving) FinishDrag(); };
+    }
+
+    private void FinishDrag()
+    {
+        _moving = false;
+        _pressed = false;
+        _shell.Cursor = null;
+        if (_shell.IsMouseCaptured) _shell.ReleaseMouseCapture();
+        _homeOffset = Math.Round(Left - CenterLeft);
+        SaveHomeOffset();
+        if (_state == State.Alert &amp;&amp; !_shell.IsMouseOver) _alertTimer.Start();
+    }
+
+    /// &lt;summary&gt;Menu &quot;Voltar o notch para o centro&quot;.&lt;/summary&gt;
+    private void ResetHomeOffset()
+    {
+        _homeOffset = 0;
+        SaveHomeOffset();
+        MoveTo(0);
+    }
+
+    private void SaveHomeOffset()
+    {
+        _settings.Set(&quot;offset&quot;, (int)_homeOffset);
+        _settings.Save();
+    }
+
+    /// &lt;summary&gt;Limita o deslocamento para o notch (até aberto, que é o mais largo) caber inteiro na tela.&lt;/summary&gt;
+    private static double ClampOffset(double offset)
+    {
+        var limit = Math.Max(0, SystemParameters.PrimaryScreenWidth / 2 - ExpandedW / 2 - 8);
+        return Math.Clamp(offset, -limit, limit);
+    }
+
+    /// &lt;summary&gt;A tela mudou de tamanho (outro monitor, outra resolução): mantém o notch dentro dela.&lt;/summary&gt;
+    private void ClampHomeOffset() =&gt; _homeOffset = ClampOffset(_homeOffset);
+
+    /// &lt;summary&gt;Posição do mouse em pontos do WPF (a mesma unidade de Left/Width).&lt;/summary&gt;
+    private bool TryCursorDip(out Point point)
+    {
+        point = default;
+        if (!Native.GetCursorPos(out var p)) return false;
+        var target = PresentationSource.FromVisual(this)?.CompositionTarget;
+        if (target == null) return false;
+        point = target.TransformFromDevice.Transform(new Point(p.X, p.Y));
+        return true;
+    }
+}
+</code></pre></div></details>
 <details class="arquivo" id="arq-src-notch-app-notchwindow-dodge-cs"><summary><span class="caminho">src/Notch.App/NotchWindow.Dodge.cs</span><span class="meta">151 linhas</span><span class="desc">Desvio das abas do navegador: detecta o navegador embaixo do notch e o mouse chegando perto, e desliza o notch para o lado.</span></summary><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code class="language-csharp">using System.Diagnostics;
 using System.Windows;
 using System.Windows.Media.Animation;
@@ -2715,7 +2848,8 @@ namespace Notch.App;
 /// &lt;summary&gt;
 /// &quot;Desviar das abas do navegador&quot;: com o Chrome (ou outro navegador) aberto embaixo do notch,
 /// quando o mouse chega perto o notch desliza para o lado oposto e libera as abas.
-/// Ele fica nesse lugar (e continua clicável lá) até o mouse sair do topo da tela; aí volta ao centro.
+/// Ele fica nesse lugar (e continua clicável lá) até o mouse sair do topo da tela; aí volta para o
+/// lugar de sempre (o centro, ou onde o usuário arrastou o notch).
 /// &lt;/summary&gt;
 internal sealed partial class NotchWindow
 {
@@ -2751,10 +2885,9 @@ internal sealed partial class NotchWindow
 
     private void DodgeTick()
     {
-        if (_hwnd == 0 || !Native.GetCursorPos(out var p)) return;
+        if (_hwnd == 0 || _pressed || IsBeingDragged) return; // segurando/arrastando o notch: não desvia
         var source = PresentationSource.FromVisual(this);
-        if (source?.CompositionTarget == null) return;
-        var cursor = source.CompositionTarget.TransformFromDevice.Transform(new Point(p.X, p.Y));
+        if (source?.CompositionTarget == null || !TryCursorDip(out var cursor)) return;
 
         if (!Dodged)
         {
@@ -2823,7 +2956,7 @@ internal sealed partial class NotchWindow
     {
         _dodgeOffset = offset;
         _returnAt = null;
-        var target = CenterLeft + offset;
+        var target = HomeLeft + offset; // o desvio é a partir do lugar escolhido pelo usuário (veja NotchWindow.Drag.cs)
         if (!animate)
         {
             BeginAnimation(LeftProperty, null);

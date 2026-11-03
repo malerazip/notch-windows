@@ -42,8 +42,10 @@ Caps Lock, idioma do teclado, internet, Bluetooth e, se você ligar, as notifica
   ferramentas ligadas/desligadas, microfone mudo, alertas, abrir ao passar o mouse, modo minimalista,
   mascote, iniciar com o Windows e as pastas de plugins e de dados.
 - Em tela cheia (filmes, jogos, apresentações) o notch se esconde sozinho.
+- **Segure e arraste** o notch para os lados para mudar ele de lugar no topo da tela (a posição fica salva;
+  no menu, "Voltar o notch para o centro" desfaz). Com o painel aberto, arraste pelo cabeçalho.
 - Com o Chrome (ou outro navegador) aberto embaixo dele, o notch **desvia para o lado** quando o mouse
-  chega perto, liberando as abas. Ele volta ao centro quando o mouse sai do topo da tela
+  chega perto, liberando as abas. Ele volta ao lugar de sempre quando o mouse sai do topo da tela
   (dá para desligar no menu, em "Desviar das abas do navegador").
 
 Os dados ficam em `%APPDATA%\ProjetoNotch` (arquivos `.txt` simples) e a prateleira fica em
